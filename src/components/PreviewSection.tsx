@@ -537,83 +537,87 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
             >
               {/* Portfolio Hero Section */}
               <div 
-                className="p-8 text-center text-white"
+                className="relative overflow-hidden"
                 style={{ 
                   background: data.customization.portfolio.colors.heroBackground,
-                  minHeight: '400px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center'
+                  minHeight: '500px'
                 }}
               >
-                <h1 
-                  className="text-4xl font-bold mb-4"
-                  style={{ 
-                    color: currentCustomization.colors.mainHeaderText,
-                    fontFamily: currentCustomization.fonts.mainHeader
-                  }}
-                >
-                  {data.personalInfo.fullName}
-                </h1>
-                <p className="text-xl opacity-90 mb-6">
-                  {data.personalInfo.summary || 'Professional Portfolio'}
-                </p>
-                <div 
-                  className="flex justify-center space-x-6 text-sm"
-                  style={{ 
-                    color: currentCustomization.colors.contactText,
-                    fontFamily: currentCustomization.fonts.contactInfo
-                  }}
-                >
-                  <span>{data.personalInfo.email}</span>
-                  <span>{data.personalInfo.phone}</span>
-                  <span>{data.personalInfo.location}</span>
-                </div>
-                
-                {/* Social Links */}
-                {(data.personalInfo.website || data.personalInfo.linkedin || data.personalInfo.github) && (
-                  <div className="flex justify-center space-x-4 mt-6">
-                    {data.personalInfo.website && (
-                      <a 
-                        href={data.personalInfo.website} 
-                        className="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors duration-200"
-                        style={{ color: 'white' }}
-                      >
-                        Website
-                      </a>
-                    )}
-                    {data.personalInfo.linkedin && (
-                      <a 
-                        href={data.personalInfo.linkedin} 
-                        className="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors duration-200"
-                        style={{ color: 'white' }}
-                      >
-                        LinkedIn
-                      </a>
-                    )}
-                    {data.personalInfo.github && (
-                      <a 
-                        href={data.personalInfo.github} 
-                        className="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors duration-200"
-                        style={{ color: 'white' }}
-                      >
-                        GitHub
-                      </a>
-                    )}
+                <div className="absolute inset-0 bg-black/20"></div>
+                <div className="relative z-10 flex flex-col justify-center items-center h-full text-center text-white p-8">
+                  <h1 
+                    className="text-5xl font-bold mb-4"
+                    style={{ 
+                      color: 'white',
+                      fontFamily: currentCustomization.fonts.mainHeader,
+                      textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+                    }}
+                  >
+                    {data.personalInfo.fullName}
+                  </h1>
+                  <p className="text-xl mb-6 opacity-90 max-w-2xl">
+                    {data.personalInfo.summary || 'Professional Portfolio'}
+                  </p>
+                  
+                  <div className="flex flex-wrap justify-center gap-6 text-sm mb-8">
+                    <div className="flex items-center space-x-2">
+                      <span>📧</span>
+                      <span>{data.personalInfo.email}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span>📱</span>
+                      <span>{data.personalInfo.phone}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span>📍</span>
+                      <span>{data.personalInfo.location}</span>
+                    </div>
                   </div>
-                )}
+                  
+                  {/* Social Links */}
+                  {(data.personalInfo.website || data.personalInfo.linkedin || data.personalInfo.github) && (
+                    <div className="flex flex-wrap justify-center gap-4">
+                      {data.personalInfo.website && (
+                        <a 
+                          href={data.personalInfo.website} 
+                          className="px-6 py-3 bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30"
+                          style={{ color: 'white' }}
+                        >
+                          🌐 Website
+                        </a>
+                      )}
+                      {data.personalInfo.linkedin && (
+                        <a 
+                          href={data.personalInfo.linkedin} 
+                          className="px-6 py-3 bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30"
+                          style={{ color: 'white' }}
+                        >
+                          💼 LinkedIn
+                        </a>
+                      )}
+                      {data.personalInfo.github && (
+                        <a 
+                          href={data.personalInfo.github} 
+                          className="px-6 py-3 bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30"
+                          style={{ color: 'white' }}
+                        >
+                          💻 GitHub
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
               
-              {/* Portfolio Content */}
+              {/* Portfolio Content Sections */}
               <div 
                 className="p-8"
                 style={{ backgroundColor: currentCustomization.colors.pageBackground }}
               >
                 {/* About Section */}
                 {data.personalInfo.summary && (
-                  <div 
-                    className="mb-8 p-6 rounded-lg"
+                  <section 
+                    className="mb-16 p-8 rounded-xl"
                     style={{ 
                       backgroundColor: currentCustomization.colors.sectionBackground,
                       borderRadius: safeBorders.borderRadius,
@@ -621,16 +625,16 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
                     }}
                   >
                     <h2 
-                      className="text-2xl font-bold mb-4 border-b-2 pb-2"
+                      className="text-3xl font-bold mb-6 text-center"
                       style={{ 
                         color: currentCustomization.colors.sectionHeaderText,
-                        fontFamily: currentCustomization.fonts.sectionHeaders,
-                        borderColor: currentCustomization.colors.primaryAccent
+                        fontFamily: currentCustomization.fonts.sectionHeaders
                       }}
                     >
                       About Me
                     </h2>
                     <p 
+                      className="text-lg text-center max-w-4xl mx-auto"
                       style={{ 
                         color: currentCustomization.colors.bodyText,
                         lineHeight: safeSpacing.lineHeight
@@ -638,30 +642,348 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
                     >
                       {data.personalInfo.summary}
                     </p>
-                  </div>
+                  </section>
                 )}
 
-                {/* Render sections in custom portfolio order */}
-                {renderSectionByOrder(data.sectionOrder?.portfolio || defaultPortfolioOrder, 'portfolio')}
+                {/* Portfolio Sections in Custom Order */}
+                <div className="space-y-16">
+                  {data.sectionOrder?.portfolio?.map(sectionId => {
+                    switch (sectionId) {
+                      case 'projects':
+                        return data.projects.length > 0 ? (
+                          <section key="projects" className="mb-16">
+                            <h2 
+                              className="text-3xl font-bold mb-8 text-center"
+                              style={{ 
+                                color: currentCustomization.colors.sectionHeaderText,
+                                fontFamily: currentCustomization.fonts.sectionHeaders
+                              }}
+                            >
+                              Featured Projects
+                            </h2>
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                              {data.projects.map((project) => (
+                                <div 
+                                  key={project.id} 
+                                  className="rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                                  style={{ 
+                                    backgroundColor: currentCustomization.colors.cardBackground,
+                                    borderRadius: safeBorders.borderRadius,
+                                    border: `1px solid ${currentCustomization.colors.borderColor}`
+                                  }}
+                                >
+                                  {project.imageUrl ? (
+                                    <img 
+                                      src={project.imageUrl} 
+                                      alt={project.name}
+                                      className="w-full h-48 object-cover"
+                                    />
+                                  ) : (
+                                    <div 
+                                      className="w-full h-48 flex items-center justify-center text-4xl"
+                                      style={{ backgroundColor: currentCustomization.colors.primaryAccent + '20' }}
+                                    >
+                                      💻
+                                    </div>
+                                  )}
+                                  <div className="p-6">
+                                    <h3 
+                                      className="text-xl font-semibold mb-3"
+                                      style={{ 
+                                        color: currentCustomization.colors.subHeaderText,
+                                        fontFamily: currentCustomization.fonts.subHeaders
+                                      }}
+                                    >
+                                      {project.name}
+                                    </h3>
+                                    <p 
+                                      className="mb-4"
+                                      style={{ 
+                                        color: currentCustomization.colors.bodyText,
+                                        lineHeight: safeSpacing.lineHeight
+                                      }}
+                                    >
+                                      {project.description}
+                                    </p>
+                                    <div className="flex flex-wrap gap-2 mb-4">
+                                      {project.technologies.map((tech) => (
+                                        <span
+                                          key={tech}
+                                          className="px-3 py-1 rounded-full text-xs font-medium"
+                                          style={{ 
+                                            backgroundColor: currentCustomization.colors.primaryAccent + '20',
+                                            color: currentCustomization.colors.primaryAccent
+                                          }}
+                                        >
+                                          {tech}
+                                        </span>
+                                      ))}
+                                    </div>
+                                    <div className="flex space-x-4">
+                                      {project.liveUrl && (
+                                        <a 
+                                          href={project.liveUrl} 
+                                          className="text-sm font-medium hover:underline"
+                                          style={{ color: currentCustomization.colors.linkText }}
+                                        >
+                                          🔗 Live Demo
+                                        </a>
+                                      )}
+                                      {project.githubUrl && (
+                                        <a 
+                                          href={project.githubUrl} 
+                                          className="text-sm font-medium hover:underline"
+                                          style={{ color: currentCustomization.colors.linkText }}
+                                        >
+                                          💻 GitHub
+                                        </a>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </section>
+                        ) : null;
+
+                      case 'experience':
+                        return data.experience.length > 0 ? (
+                          <section key="experience" className="mb-16">
+                            <h2 
+                              className="text-3xl font-bold mb-8 text-center"
+                              style={{ 
+                                color: currentCustomization.colors.sectionHeaderText,
+                                fontFamily: currentCustomization.fonts.sectionHeaders
+                              }}
+                            >
+                              Professional Experience
+                            </h2>
+                            <div className="max-w-4xl mx-auto space-y-8">
+                              {data.experience.map((exp) => (
+                                <div 
+                                  key={exp.id}
+                                  className="p-6 rounded-xl shadow-lg"
+                                  style={{ 
+                                    backgroundColor: currentCustomization.colors.cardBackground,
+                                    borderRadius: safeBorders.borderRadius,
+                                    borderLeft: `4px solid ${currentCustomization.colors.primaryAccent}`
+                                  }}
+                                >
+                                  <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-4">
+                                    <div>
+                                      <h3 
+                                        className="text-xl font-semibold"
+                                        style={{ 
+                                          color: currentCustomization.colors.subHeaderText,
+                                          fontFamily: currentCustomization.fonts.subHeaders
+                                        }}
+                                      >
+                                        {exp.position}
+                                      </h3>
+                                      <p 
+                                        className="text-lg italic"
+                                        style={{ 
+                                          color: currentCustomization.colors.bodyText,
+                                          fontFamily: currentCustomization.fonts.bodyText
+                                        }}
+                                      >
+                                        {exp.company}
+                                      </p>
+                                    </div>
+                                    <span 
+                                      className="text-sm font-medium mt-2 md:mt-0"
+                                      style={{ 
+                                        color: currentCustomization.colors.dateText,
+                                        fontFamily: currentCustomization.fonts.dates
+                                      }}
+                                    >
+                                      {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
+                                    </span>
+                                  </div>
+                                  <p 
+                                    className="mb-4"
+                                    style={{ 
+                                      color: currentCustomization.colors.bodyText,
+                                      lineHeight: safeSpacing.lineHeight
+                                    }}
+                                  >
+                                    {exp.description}
+                                  </p>
+                                  {exp.achievements.length > 0 && (
+                                    <ul 
+                                      className="list-disc list-inside space-y-2"
+                                      style={{ 
+                                        color: currentCustomization.colors.bodyText,
+                                        lineHeight: safeSpacing.lineHeight
+                                      }}
+                                    >
+                                      {exp.achievements.map((achievement, index) => (
+                                        <li key={index}>{achievement}</li>
+                                      ))}
+                                    </ul>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </section>
+                        ) : null;
+
+                      case 'skills':
+                        return data.skills.length > 0 ? (
+                          <section key="skills" className="mb-16">
+                            <h2 
+                              className="text-3xl font-bold mb-8 text-center"
+                              style={{ 
+                                color: currentCustomization.colors.sectionHeaderText,
+                                fontFamily: currentCustomization.fonts.sectionHeaders
+                              }}
+                            >
+                              Skills & Expertise
+                            </h2>
+                            <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+                              {['Technical', 'Soft', 'Language', 'Tool'].map(category => {
+                                const categorySkills = data.skills.filter(skill => skill.category === category);
+                                return categorySkills.length > 0 ? (
+                                  <div 
+                                    key={category}
+                                    className="p-6 rounded-xl"
+                                    style={{ 
+                                      backgroundColor: currentCustomization.colors.cardBackground,
+                                      borderRadius: safeBorders.borderRadius,
+                                      border: `1px solid ${currentCustomization.colors.borderColor}`
+                                    }}
+                                  >
+                                    <h3 
+                                      className="text-xl font-semibold mb-4"
+                                      style={{ 
+                                        color: currentCustomization.colors.sectionHeaderText,
+                                        fontFamily: currentCustomization.fonts.sectionHeaders
+                                      }}
+                                    >
+                                      {category} Skills
+                                    </h3>
+                                    <div className="flex flex-wrap gap-3">
+                                      {categorySkills.map((skill, index) => (
+                                        <span
+                                          key={index}
+                                          className="px-4 py-2 rounded-full text-sm font-medium"
+                                          style={{ 
+                                            backgroundColor: currentCustomization.colors.sectionBackground,
+                                            color: currentCustomization.colors.bodyText,
+                                            border: `1px solid ${currentCustomization.colors.borderColor}`
+                                          }}
+                                        >
+                                          {skill.name}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ) : null;
+                              })}
+                            </div>
+                          </section>
+                        ) : null;
+
+                      case 'education':
+                        return data.education.length > 0 ? (
+                          <section key="education" className="mb-16">
+                            <h2 
+                              className="text-3xl font-bold mb-8 text-center"
+                              style={{ 
+                                color: currentCustomization.colors.sectionHeaderText,
+                                fontFamily: currentCustomization.fonts.sectionHeaders
+                              }}
+                            >
+                              Education
+                            </h2>
+                            <div className="max-w-4xl mx-auto space-y-6">
+                              {data.education.map((edu) => (
+                                <div 
+                                  key={edu.id}
+                                  className="p-6 rounded-xl shadow-lg"
+                                  style={{ 
+                                    backgroundColor: currentCustomization.colors.cardBackground,
+                                    borderRadius: safeBorders.borderRadius,
+                                    border: `1px solid ${currentCustomization.colors.borderColor}`
+                                  }}
+                                >
+                                  <div className="flex flex-col md:flex-row md:justify-between md:items-start">
+                                    <div>
+                                      <h3 
+                                        className="text-xl font-semibold"
+                                        style={{ 
+                                          color: currentCustomization.colors.subHeaderText,
+                                          fontFamily: currentCustomization.fonts.subHeaders
+                                        }}
+                                      >
+                                        {edu.degree} in {edu.field}
+                                      </h3>
+                                      <p 
+                                        className="text-lg italic"
+                                        style={{ 
+                                          color: currentCustomization.colors.bodyText,
+                                          fontFamily: currentCustomization.fonts.bodyText
+                                        }}
+                                      >
+                                        {edu.institution}
+                                      </p>
+                                      {edu.gpa && (
+                                        <p style={{ 
+                                          color: currentCustomization.colors.bodyText,
+                                          lineHeight: safeSpacing.lineHeight
+                                        }}>
+                                          GPA: {edu.gpa}
+                                        </p>
+                                      )}
+                                      {edu.honors && (
+                                        <p style={{ 
+                                          color: currentCustomization.colors.bodyText,
+                                          lineHeight: safeSpacing.lineHeight
+                                        }}>
+                                          {edu.honors}
+                                        </p>
+                                      )}
+                                    </div>
+                                    <span 
+                                      className="text-sm font-medium mt-2 md:mt-0"
+                                      style={{ 
+                                        color: currentCustomization.colors.dateText,
+                                        fontFamily: currentCustomization.fonts.dates
+                                      }}
+                                    >
+                                      {edu.startDate} - {edu.endDate}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </section>
+                        ) : null;
+
+                      default:
+                        return null;
+                    }
+                  }) || renderSectionByOrder(defaultPortfolioOrder, 'portfolio')}
+                </div>
 
                 {/* Contact Section */}
-                <div 
-                  className="rounded-xl p-6 text-center"
+                <section 
+                  className="mt-16 p-8 rounded-xl text-center"
                   style={{ 
                     backgroundColor: currentCustomization.colors.sectionBackground,
                     borderRadius: safeBorders.borderRadius
                   }}
                 >
                   <h2 
-                    className="text-2xl font-bold mb-4"
+                    className="text-3xl font-bold mb-6"
                     style={{ 
                       color: currentCustomization.colors.sectionHeaderText,
                       fontFamily: currentCustomization.fonts.sectionHeaders
                     }}
                   >
-                    Get In Touch
+                    Let's Connect
                   </h2>
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     <p style={{ 
                       color: currentCustomization.colors.bodyText,
                       fontFamily: currentCustomization.fonts.bodyText
@@ -681,14 +1003,14 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
                       <strong>Location:</strong> {data.personalInfo.location}
                     </p>
                     {(data.personalInfo.website || data.personalInfo.linkedin || data.personalInfo.github) && (
-                      <div className="flex justify-center space-x-4 mt-4">
+                      <div className="flex justify-center space-x-6 mt-6">
                         {data.personalInfo.website && (
                           <a 
                             href={data.personalInfo.website} 
                             className="hover:underline"
                             style={{ color: currentCustomization.colors.linkText }}
                           >
-                            Website
+                            🌐 Website
                           </a>
                         )}
                         {data.personalInfo.linkedin && (
@@ -697,7 +1019,7 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
                             className="hover:underline"
                             style={{ color: currentCustomization.colors.linkText }}
                           >
-                            LinkedIn
+                            💼 LinkedIn
                           </a>
                         )}
                         {data.personalInfo.github && (
@@ -706,13 +1028,13 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
                             className="hover:underline"
                             style={{ color: currentCustomization.colors.linkText }}
                           >
-                            GitHub
+                            💻 GitHub
                           </a>
                         )}
                       </div>
                     )}
                   </div>
-                </div>
+                </section>
               </div>
             </div>
           )}
