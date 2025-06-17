@@ -100,41 +100,41 @@ const generatePDFHTML = (data: ResumeData): string => {
   const { personalInfo, experience, education, projects, skills, sectionOrder, customization } = data;
   const resumeCustomization = customization.resume;
   
-  // Use safe fallbacks for customization
+  // Use safe fallbacks for customization - exact same logic as preview
   const safeSpacing = resumeCustomization.spacing || { 
-    sectionSpacing: '24px', 
-    paragraphSpacing: '12px', 
-    lineHeight: '1.4' 
+    sectionSpacing: '2rem', 
+    paragraphSpacing: '1rem', 
+    lineHeight: '1.6' 
   };
-  const safeBorders = resumeCustomization.borders || { borderRadius: '6px' };
+  const safeBorders = resumeCustomization.borders || { borderRadius: '8px' };
   const safeFonts = resumeCustomization.fonts || {
-    mainHeader: 'Arial',
-    sectionHeaders: 'Arial',
-    subHeaders: 'Arial',
-    bodyText: 'Arial',
-    contactInfo: 'Arial',
-    dates: 'Arial'
+    mainHeader: 'Inter',
+    sectionHeaders: 'Inter',
+    subHeaders: 'Inter',
+    bodyText: 'Inter',
+    contactInfo: 'Inter',
+    dates: 'Inter'
   };
   const safeColors = resumeCustomization.colors || {
-    mainHeaderText: '#2c3e50',
-    sectionHeaderText: '#2c3e50',
-    subHeaderText: '#34495e',
-    bodyText: '#2c3e50',
-    contactText: '#7f8c8d',
-    dateText: '#95a5a6',
-    linkText: '#3498db',
+    mainHeaderText: '#1f2937',
+    sectionHeaderText: '#374151',
+    subHeaderText: '#4b5563',
+    bodyText: '#6b7280',
+    contactText: '#6b7280',
+    dateText: '#9ca3af',
+    linkText: '#2563eb',
     pageBackground: '#ffffff',
-    headerBackground: '#f8f9fa',
-    sectionBackground: '#f8f9fa',
+    headerBackground: '#f9fafb',
+    sectionBackground: '#f3f4f6',
     cardBackground: '#ffffff',
     alternateBackground: '#f8fafc',
-    primaryAccent: '#3498db',
-    secondaryAccent: '#2980b9',
-    borderColor: '#e9ecef',
-    dividerColor: '#dee2e6',
+    primaryAccent: '#2563eb',
+    secondaryAccent: '#3b82f6',
+    borderColor: '#e5e7eb',
+    dividerColor: '#d1d5db',
     shadowColor: '#00000010',
-    hoverColor: '#2980b9',
-    activeColor: '#1f4e79'
+    hoverColor: '#1d4ed8',
+    activeColor: '#1e40af'
   };
   
   const renderSectionByOrder = (sections: string[]) => {
@@ -389,6 +389,7 @@ const generatePDFHTML = (data: ResumeData): string => {
       .achievements {
         margin-top: 8px;
         margin-left: 18px;
+        list-style-type: disc;
       }
       
       .achievements li {

@@ -4,7 +4,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
   const { personalInfo, experience, education, projects, skills, sectionOrder, customization } = data;
   const portfolioCustomization = customization.portfolio;
 
-  // Safe fallbacks for customization
+  // Safe fallbacks for customization - use exact same logic as preview
   const safeSpacing = portfolioCustomization.spacing || { 
     sectionSpacing: '4rem', 
     paragraphSpacing: '1.5rem', 
@@ -15,6 +15,49 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
     heroHeight: '100vh', 
     cardShadow: '0 10px 25px rgba(0,0,0,0.1)', 
     animationSpeed: '0.3s' 
+  };
+  const safeFonts = portfolioCustomization.fonts || {
+    mainHeader: 'Inter',
+    sectionHeaders: 'Inter',
+    subHeaders: 'Inter',
+    bodyText: 'Inter',
+    contactInfo: 'Inter',
+    dates: 'Inter'
+  };
+  const safeColors = portfolioCustomization.colors || {
+    mainHeaderText: '#ffffff',
+    sectionHeaderText: '#1f2937',
+    subHeaderText: '#374151',
+    bodyText: '#4b5563',
+    contactText: '#6b7280',
+    dateText: '#9ca3af',
+    linkText: '#2563eb',
+    pageBackground: '#ffffff',
+    headerBackground: '#f9fafb',
+    sectionBackground: '#f8fafc',
+    cardBackground: '#ffffff',
+    alternateBackground: '#f1f5f9',
+    primaryAccent: '#2563eb',
+    secondaryAccent: '#3b82f6',
+    borderColor: '#e2e8f0',
+    dividerColor: '#cbd5e1',
+    shadowColor: '#00000015',
+    hoverColor: '#1d4ed8',
+    activeColor: '#1e40af',
+    heroBackground: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    heroGradient: {
+      type: 'linear',
+      direction: '135deg',
+      startColor: '#667eea',
+      endColor: '#764ba2',
+      opacity: 1
+    },
+    heroOverlay: '#00000020',
+    navigationBackground: '#ffffff',
+    footerBackground: '#1f2937',
+    projectCardBackground: '#ffffff',
+    skillTagBackground: '#f1f5f9',
+    timelineAccent: '#2563eb'
   };
 
   const renderSectionByOrder = (sections: string[]) => {
@@ -138,10 +181,10 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         }
         
         body {
-            font-family: '${portfolioCustomization.fonts.bodyText}', sans-serif;
+            font-family: '${safeFonts.bodyText}', sans-serif;
             line-height: ${safeSpacing.lineHeight};
-            color: ${portfolioCustomization.colors.bodyText};
-            background-color: ${portfolioCustomization.colors.pageBackground};
+            color: ${safeColors.bodyText};
+            background-color: ${safeColors.pageBackground};
             scroll-behavior: smooth;
         }
         
@@ -153,8 +196,8 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         
         /* Header */
         .header {
-            background: ${portfolioCustomization.colors.heroBackground};
-            color: ${portfolioCustomization.colors.mainHeaderText};
+            background: ${safeColors.heroBackground};
+            color: ${safeColors.mainHeaderText};
             padding: 100px 0;
             text-align: center;
             min-height: ${safeLayout.heroHeight};
@@ -172,7 +215,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             left: 0;
             right: 0;
             bottom: 0;
-            background: ${portfolioCustomization.colors.heroOverlay || 'rgba(0,0,0,0.1)'};
+            background: ${safeColors.heroOverlay || 'rgba(0,0,0,0.1)'};
             z-index: 1;
         }
         
@@ -185,7 +228,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             font-size: 3.5rem;
             margin-bottom: 20px;
             font-weight: 700;
-            font-family: '${portfolioCustomization.fonts.mainHeader}', sans-serif;
+            font-family: '${safeFonts.mainHeader}', sans-serif;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             animation: fadeInUp 1s ease-out;
         }
@@ -211,8 +254,8 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             align-items: center;
             gap: 8px;
             font-size: 1.1rem;
-            color: ${portfolioCustomization.colors.contactText};
-            font-family: '${portfolioCustomization.fonts.contactInfo}', sans-serif;
+            color: ${safeColors.contactText};
+            font-family: '${safeFonts.contactInfo}', sans-serif;
         }
         
         .social-links {
@@ -225,7 +268,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         }
         
         .social-links a {
-            color: ${portfolioCustomization.colors.mainHeaderText};
+            color: ${safeColors.mainHeaderText};
             font-size: 2rem;
             transition: all ${safeLayout.animationSpeed} ease;
             padding: 15px;
@@ -242,12 +285,12 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         
         /* Navigation */
         .nav {
-            background: ${portfolioCustomization.colors.navigationBackground || portfolioCustomization.colors.cardBackground};
+            background: ${safeColors.navigationBackground || safeColors.cardBackground};
             box-shadow: ${safeLayout.cardShadow};
             position: sticky;
             top: 0;
             z-index: 100;
-            border-bottom: 1px solid ${portfolioCustomization.colors.borderColor};
+            border-bottom: 1px solid ${safeColors.borderColor};
             backdrop-filter: blur(10px);
         }
         
@@ -266,7 +309,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         
         .nav a {
             text-decoration: none;
-            color: ${portfolioCustomization.colors.bodyText};
+            color: ${safeColors.bodyText};
             font-weight: 600;
             font-size: 1.1rem;
             transition: all ${safeLayout.animationSpeed} ease;
@@ -288,8 +331,8 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         }
         
         .nav a:hover {
-            color: ${portfolioCustomization.colors.primaryAccent};
-            background: ${portfolioCustomization.colors.primaryAccent}10;
+            color: ${safeColors.primaryAccent};
+            background: ${safeColors.primaryAccent}10;
             transform: translateY(-2px);
         }
         
@@ -304,15 +347,15 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         }
         
         .section:nth-child(even) {
-            background: ${portfolioCustomization.colors.alternateBackground};
+            background: ${safeColors.alternateBackground};
         }
         
         .section-title {
             text-align: center;
             font-size: 3rem;
             margin-bottom: 60px;
-            color: ${portfolioCustomization.colors.sectionHeaderText};
-            font-family: '${portfolioCustomization.fonts.sectionHeaders}', sans-serif;
+            color: ${safeColors.sectionHeaderText};
+            font-family: '${safeFonts.sectionHeaders}', sans-serif;
             font-weight: 700;
             position: relative;
             animation: fadeInUp 0.8s ease-out;
@@ -326,7 +369,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             transform: translateX(-50%);
             width: 80px;
             height: 4px;
-            background: linear-gradient(90deg, ${portfolioCustomization.colors.primaryAccent}, ${portfolioCustomization.colors.secondaryAccent});
+            background: linear-gradient(90deg, ${safeColors.primaryAccent}, ${safeColors.secondaryAccent});
             border-radius: 2px;
         }
         
@@ -337,9 +380,9 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             text-align: center;
             font-size: 1.2rem;
             line-height: ${safeSpacing.lineHeight};
-            color: ${portfolioCustomization.colors.bodyText};
+            color: ${safeColors.bodyText};
             padding: 40px;
-            background: ${portfolioCustomization.colors.cardBackground};
+            background: ${safeColors.cardBackground};
             border-radius: ${safeBorders.borderRadius};
             box-shadow: ${safeLayout.cardShadow};
             animation: fadeInUp 0.8s ease-out;
@@ -359,18 +402,18 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             top: 0;
             bottom: 0;
             width: 4px;
-            background: linear-gradient(180deg, ${portfolioCustomization.colors.primaryAccent}, ${portfolioCustomization.colors.secondaryAccent});
+            background: linear-gradient(180deg, ${safeColors.primaryAccent}, ${safeColors.secondaryAccent});
             transform: translateX(-50%);
             border-radius: 2px;
         }
         
         .timeline-item {
-            background: ${portfolioCustomization.colors.cardBackground};
+            background: ${safeColors.cardBackground};
             padding: 40px;
             margin-bottom: 40px;
             border-radius: ${safeBorders.borderRadius};
             box-shadow: ${safeLayout.cardShadow};
-            border-left: 6px solid ${portfolioCustomization.colors.primaryAccent};
+            border-left: 6px solid ${safeColors.primaryAccent};
             position: relative;
             margin-left: 60px;
             animation: slideInLeft 0.8s ease-out;
@@ -390,22 +433,22 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             transform: translateY(-50%);
             width: 20px;
             height: 20px;
-            background: ${portfolioCustomization.colors.primaryAccent};
+            background: ${safeColors.primaryAccent};
             border-radius: 50%;
-            border: 4px solid ${portfolioCustomization.colors.cardBackground};
-            box-shadow: 0 0 0 4px ${portfolioCustomization.colors.primaryAccent}30;
+            border: 4px solid ${safeColors.cardBackground};
+            box-shadow: 0 0 0 4px ${safeColors.primaryAccent}30;
         }
         
         .timeline-item h3 {
-            color: ${portfolioCustomization.colors.subHeaderText};
+            color: ${safeColors.subHeaderText};
             margin-bottom: 8px;
-            font-family: '${portfolioCustomization.fonts.subHeaders}', sans-serif;
+            font-family: '${safeFonts.subHeaders}', sans-serif;
             font-size: 1.4rem;
             font-weight: 600;
         }
         
         .timeline-item .company {
-            color: ${portfolioCustomization.colors.primaryAccent};
+            color: ${safeColors.primaryAccent};
             font-style: italic;
             margin-bottom: 12px;
             font-weight: 500;
@@ -413,16 +456,16 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         }
         
         .timeline-item .date {
-            color: ${portfolioCustomization.colors.dateText};
+            color: ${safeColors.dateText};
             font-size: 0.95rem;
             margin-bottom: 20px;
-            font-family: '${portfolioCustomization.fonts.dates}', sans-serif;
+            font-family: '${safeFonts.dates}', sans-serif;
             font-weight: 500;
         }
         
         .timeline-item p {
             line-height: ${safeSpacing.lineHeight};
-            color: ${portfolioCustomization.colors.bodyText};
+            color: ${safeColors.bodyText};
         }
         
         /* Projects */
@@ -434,12 +477,12 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         }
         
         .project-card {
-            background: ${portfolioCustomization.colors.projectCardBackground || portfolioCustomization.colors.cardBackground};
+            background: ${safeColors.projectCardBackground || safeColors.cardBackground};
             border-radius: ${safeBorders.borderRadius};
             overflow: hidden;
             box-shadow: ${safeLayout.cardShadow};
             transition: all ${safeLayout.animationSpeed} ease;
-            border: 1px solid ${portfolioCustomization.colors.borderColor};
+            border: 1px solid ${safeColors.borderColor};
             animation: fadeInUp 0.8s ease-out;
         }
         
@@ -450,7 +493,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         
         .project-image {
             height: 250px;
-            background: linear-gradient(135deg, ${portfolioCustomization.colors.primaryAccent}, ${portfolioCustomization.colors.secondaryAccent});
+            background: linear-gradient(135deg, ${safeColors.primaryAccent}, ${safeColors.secondaryAccent});
             display: flex;
             align-items: center;
             justify-content: center;
@@ -482,14 +525,14 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         
         .project-content h3 {
             margin-bottom: 15px;
-            color: ${portfolioCustomization.colors.subHeaderText};
-            font-family: '${portfolioCustomization.fonts.subHeaders}', sans-serif;
+            color: ${safeColors.subHeaderText};
+            font-family: '${safeFonts.subHeaders}', sans-serif;
             font-size: 1.3rem;
             font-weight: 600;
         }
         
         .project-content p {
-            color: ${portfolioCustomization.colors.bodyText};
+            color: ${safeColors.bodyText};
             margin-bottom: 20px;
             line-height: ${safeSpacing.lineHeight};
         }
@@ -502,18 +545,18 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         }
         
         .tech-tag {
-            background: ${portfolioCustomization.colors.skillTagBackground || portfolioCustomization.colors.primaryAccent + '20'};
-            color: ${portfolioCustomization.colors.primaryAccent};
+            background: ${safeColors.skillTagBackground || safeColors.primaryAccent + '20'};
+            color: ${safeColors.primaryAccent};
             padding: 6px 15px;
             border-radius: 25px;
             font-size: 0.85rem;
             font-weight: 500;
-            border: 1px solid ${portfolioCustomization.colors.primaryAccent}30;
+            border: 1px solid ${safeColors.primaryAccent}30;
             transition: all ${safeLayout.animationSpeed} ease;
         }
         
         .tech-tag:hover {
-            background: ${portfolioCustomization.colors.primaryAccent};
+            background: ${safeColors.primaryAccent};
             color: white;
             transform: translateY(-2px);
         }
@@ -524,20 +567,20 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         }
         
         .project-links a {
-            color: ${portfolioCustomization.colors.linkText};
+            color: ${safeColors.linkText};
             text-decoration: none;
             font-weight: 600;
             display: flex;
             align-items: center;
             gap: 8px;
             padding: 10px 20px;
-            border: 2px solid ${portfolioCustomization.colors.linkText};
+            border: 2px solid ${safeColors.linkText};
             border-radius: ${safeBorders.borderRadius};
             transition: all ${safeLayout.animationSpeed} ease;
         }
         
         .project-links a:hover {
-            background: ${portfolioCustomization.colors.linkText};
+            background: ${safeColors.linkText};
             color: white;
             transform: translateY(-2px);
         }
@@ -552,11 +595,11 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         }
         
         .skills-category {
-            background: ${portfolioCustomization.colors.cardBackground};
+            background: ${safeColors.cardBackground};
             padding: 30px;
             border-radius: ${safeBorders.borderRadius};
             box-shadow: ${safeLayout.cardShadow};
-            border-top: 4px solid ${portfolioCustomization.colors.primaryAccent};
+            border-top: 4px solid ${safeColors.primaryAccent};
             animation: fadeInUp 0.8s ease-out;
             transition: all ${safeLayout.animationSpeed} ease;
         }
@@ -568,8 +611,8 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         
         .skills-category h3 {
             margin-bottom: 25px;
-            color: ${portfolioCustomization.colors.sectionHeaderText};
-            font-family: '${portfolioCustomization.fonts.sectionHeaders}', sans-serif;
+            color: ${safeColors.sectionHeaderText};
+            font-family: '${safeFonts.sectionHeaders}', sans-serif;
             font-size: 1.3rem;
             font-weight: 600;
             text-align: center;
@@ -582,18 +625,18 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         }
         
         .skill-item {
-            background: ${portfolioCustomization.colors.skillTagBackground || portfolioCustomization.colors.alternateBackground};
+            background: ${safeColors.skillTagBackground || safeColors.alternateBackground};
             padding: 12px 20px;
             border-radius: 30px;
             font-weight: 500;
-            color: ${portfolioCustomization.colors.bodyText};
-            border: 1px solid ${portfolioCustomization.colors.borderColor};
+            color: ${safeColors.bodyText};
+            border: 1px solid ${safeColors.borderColor};
             transition: all ${safeLayout.animationSpeed} ease;
             cursor: default;
         }
         
         .skill-item:hover {
-            background: ${portfolioCustomization.colors.primaryAccent};
+            background: ${safeColors.primaryAccent};
             color: white;
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
@@ -601,7 +644,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         
         /* Contact */
         .contact-section {
-            background: ${portfolioCustomization.colors.sectionBackground};
+            background: ${safeColors.sectionBackground};
             padding: ${safeSpacing.sectionSpacing} 0;
         }
         
@@ -609,7 +652,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             text-align: center;
             max-width: 700px;
             margin: 0 auto;
-            background: ${portfolioCustomization.colors.cardBackground};
+            background: ${safeColors.cardBackground};
             padding: 50px;
             border-radius: ${safeBorders.borderRadius};
             box-shadow: ${safeLayout.cardShadow};
@@ -629,7 +672,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             align-items: center;
             gap: 15px;
             padding: 25px;
-            background: ${portfolioCustomization.colors.alternateBackground};
+            background: ${safeColors.alternateBackground};
             border-radius: ${safeBorders.borderRadius};
             transition: all ${safeLayout.animationSpeed} ease;
         }
@@ -640,24 +683,24 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         }
         
         .contact-item-large i {
-            color: ${portfolioCustomization.colors.primaryAccent};
+            color: ${safeColors.primaryAccent};
             font-size: 2rem;
         }
         
         .contact-item-large a {
-            color: ${portfolioCustomization.colors.linkText};
+            color: ${safeColors.linkText};
             text-decoration: none;
             font-weight: 500;
             transition: color ${safeLayout.animationSpeed} ease;
         }
         
         .contact-item-large a:hover {
-            color: ${portfolioCustomization.colors.primaryAccent};
+            color: ${safeColors.primaryAccent};
         }
         
         /* Footer */
         .footer {
-            background: ${portfolioCustomization.colors.footerBackground || portfolioCustomization.colors.sectionHeaderText};
+            background: ${safeColors.footerBackground || safeColors.sectionHeaderText};
             color: white;
             text-align: center;
             padding: 40px 0;
@@ -765,7 +808,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             .timeline-item {
                 margin-left: 0;
                 border-left: none;
-                border-top: 4px solid ${portfolioCustomization.colors.primaryAccent};
+                border-top: 4px solid ${safeColors.primaryAccent};
             }
             
             .timeline::before {
@@ -840,7 +883,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         <div class="container">
             <h2 class="section-title">Get In Touch</h2>
             <div class="contact-content">
-                <p style="font-size: 1.2rem; margin-bottom: 30px; color: ${portfolioCustomization.colors.bodyText};">
+                <p style="font-size: 1.2rem; margin-bottom: 30px; color: ${safeColors.bodyText};">
                     Let's connect and discuss opportunities
                 </p>
                 <div class="contact-grid">
@@ -933,11 +976,11 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             });
 
             navLinks.forEach(link => {
-                link.style.color = '${portfolioCustomization.colors.bodyText}';
+                link.style.color = '${safeColors.bodyText}';
                 link.style.background = 'transparent';
                 if (link.getAttribute('href') === '#' + current) {
-                    link.style.color = '${portfolioCustomization.colors.primaryAccent}';
-                    link.style.background = '${portfolioCustomization.colors.primaryAccent}10';
+                    link.style.color = '${safeColors.primaryAccent}';
+                    link.style.background = '${safeColors.primaryAccent}10';
                 }
             });
         });
