@@ -13,25 +13,46 @@ export const generateResumePDF = async (resumeData: ResumeData, templateId: stri
     resumeElement.style.backgroundColor = 'white';
     resumeElement.style.position = 'absolute';
     resumeElement.style.left = '-9999px';
+    resumeElement.style.top = '0';
+    resumeElement.style.zIndex = '-1000';
     
     document.body.appendChild(resumeElement);
 
-    // Convert to canvas
+    // Wait for fonts to load
+    await document.fonts.ready;
+
+    // Convert to canvas with higher quality
     const canvas = await html2canvas(resumeElement, {
       scale: 2,
       useCORS: true,
       allowTaint: true,
-      backgroundColor: '#ffffff'
+      backgroundColor: resumeData.customization.resume.colors.pageBackground,
+      width: resumeElement.scrollWidth,
+      height: resumeElement.scrollHeight,
+      logging: false
     });
 
     // Create PDF
     const pdf = new jsPDF('p', 'mm', 'a4');
-    const imgData = canvas.toDataURL('image/png');
+    const imgData = canvas.toDataURL('image/png', 1.0);
     
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
     
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    // Calculate aspect ratio to fit content properly
+    const canvasAspectRatio = canvas.width / canvas.height;
+    const pdfAspectRatio = pdfWidth / pdfHeight;
+    
+    let finalWidth = pdfWidth;
+    let finalHeight = pdfHeight;
+    
+    if (canvasAspectRatio > pdfAspectRatio) {
+      finalHeight = pdfWidth / canvasAspectRatio;
+    } else {
+      finalWidth = pdfHeight * canvasAspectRatio;
+    }
+    
+    pdf.addImage(imgData, 'PNG', 0, 0, finalWidth, finalHeight);
     
     // Download the PDF
     pdf.save(`${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`);
@@ -46,73 +67,233 @@ export const generateResumePDF = async (resumeData: ResumeData, templateId: stri
 
 const generateResumeHTML = (data: ResumeData, templateId: string): string => {
   const { personalInfo, experience, education, projects, skills, sectionOrder, customization } = data;
+  const resumeCustomization = customization.resume;
   
-  // Base styles with customization
+  // Safe fallbacks for customization
+  const safeSpacing = resumeCustomization.spacing || { 
+    sectionSpacing: '2rem', 
+    paragraphSpacing: '1rem', 
+    lineHeight: '1.6' 
+  };
+  const safeBorders = resumeCustomization.borders || { borderRadius: '8px' };
+  
+  // Base styles with proper customization
   const baseStyles = `
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Georgia:wght@400;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&family=Lato:wght@400;700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;700&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Georgia:wght@400;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&family=Lato:wght@400;700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;500;600;700&family=Source+Sans+Pro:wght@400;600;700&display=swap');
       
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { 
-        font-family: '${customization.resume.fonts.body}', sans-serif; 
-        line-height: 1.6; 
-        color: ${customization.resume.colors.bodyText};
-        background-color: ${customization.resume.colors.backgroundColor};
+      * { 
+        margin: 0; 
+        padding: 0; 
+        box-sizing: border-box; 
       }
-      .resume { max-width: 800px; margin: 0 auto; }
-      .header { text-align: center; margin-bottom: 30px; }
+      
+      body { 
+        font-family: '${resumeCustomization.fonts.bodyText}', sans-serif; 
+        line-height: ${safeSpacing.lineHeight}; 
+        color: ${resumeCustomization.colors.bodyText};
+        background-color: ${resumeCustomization.colors.pageBackground};
+        font-size: 14px;
+      }
+      
+      .resume { 
+        max-width: 800px; 
+        margin: 0 auto; 
+        background-color: ${resumeCustomization.colors.pageBackground};
+        padding: 40px;
+      }
+      
+      .header { 
+        text-align: center; 
+        margin-bottom: ${safeSpacing.sectionSpacing}; 
+        padding: 30px;
+        background-color: ${resumeCustomization.colors.headerBackground};
+        border-radius: ${safeBorders.borderRadius};
+      }
+      
       .name { 
-        font-size: 28px; 
+        font-size: 32px; 
         font-weight: bold; 
         margin-bottom: 10px; 
-        color: ${customization.resume.colors.headerText};
-        font-family: '${customization.resume.fonts.header}', sans-serif;
+        color: ${resumeCustomization.colors.mainHeaderText};
+        font-family: '${resumeCustomization.fonts.mainHeader}', sans-serif;
       }
-      .contact { font-size: 14px; color: ${customization.resume.colors.bodyText}; }
+      
+      .contact { 
+        font-size: 14px; 
+        color: ${resumeCustomization.colors.contactText};
+        font-family: '${resumeCustomization.fonts.contactInfo}', sans-serif;
+        margin-bottom: 15px;
+      }
+      
+      .summary {
+        font-size: 16px;
+        color: ${resumeCustomization.colors.bodyText};
+        line-height: ${safeSpacing.lineHeight};
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      
       .section { 
-        margin-bottom: 25px; 
-        background-color: ${customization.resume.colors.sectionBackground};
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid ${customization.resume.colors.borderColor};
+        margin-bottom: ${safeSpacing.sectionSpacing}; 
+        background-color: ${resumeCustomization.colors.sectionBackground};
+        padding: 25px;
+        border-radius: ${safeBorders.borderRadius};
+        border: 1px solid ${resumeCustomization.colors.borderColor};
       }
+      
       .section-title { 
-        font-size: 18px; 
+        font-size: 20px; 
         font-weight: bold; 
-        border-bottom: 2px solid ${customization.resume.colors.accentColor}; 
-        padding-bottom: 5px; 
-        margin-bottom: 15px; 
-        color: ${customization.resume.colors.headerText};
-        font-family: '${customization.resume.fonts.header}', sans-serif;
+        border-bottom: 3px solid ${resumeCustomization.colors.primaryAccent}; 
+        padding-bottom: 8px; 
+        margin-bottom: 20px; 
+        color: ${resumeCustomization.colors.sectionHeaderText};
+        font-family: '${resumeCustomization.fonts.sectionHeaders}', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
       }
-      .item { margin-bottom: 15px; }
-      .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+      
+      .item { 
+        margin-bottom: ${safeSpacing.paragraphSpacing}; 
+        padding-bottom: 15px;
+        border-bottom: 1px solid ${resumeCustomization.colors.dividerColor};
+      }
+      
+      .item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+      
+      .item-header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: flex-start; 
+        margin-bottom: 8px; 
+        flex-wrap: wrap;
+      }
+      
       .item-title { 
         font-weight: bold; 
-        color: ${customization.resume.colors.accentColor};
+        color: ${resumeCustomization.colors.subHeaderText};
+        font-family: '${resumeCustomization.fonts.subHeaders}', sans-serif;
+        font-size: 16px;
       }
-      .item-subtitle { color: ${customization.resume.colors.bodyText}; font-style: italic; }
-      .item-date { color: ${customization.resume.colors.bodyText}; font-size: 14px; }
-      .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
-      .skill-category { margin-bottom: 10px; }
+      
+      .item-subtitle { 
+        color: ${resumeCustomization.colors.bodyText}; 
+        font-style: italic; 
+        margin-top: 2px;
+        font-size: 14px;
+      }
+      
+      .item-date { 
+        color: ${resumeCustomization.colors.dateText}; 
+        font-size: 12px;
+        font-family: '${resumeCustomization.fonts.dates}', sans-serif;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+      
+      .item-description {
+        color: ${resumeCustomization.colors.bodyText};
+        line-height: ${safeSpacing.lineHeight};
+        margin-top: 8px;
+        font-size: 14px;
+      }
+      
+      .achievements {
+        margin-top: 10px;
+        margin-left: 20px;
+      }
+      
+      .achievements li {
+        color: ${resumeCustomization.colors.bodyText};
+        margin-bottom: 4px;
+        line-height: ${safeSpacing.lineHeight};
+      }
+      
+      .skills-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+        gap: 20px; 
+      }
+      
+      .skill-category { 
+        margin-bottom: 15px; 
+      }
+      
       .skill-category-title { 
         font-weight: bold; 
-        margin-bottom: 5px; 
-        color: ${customization.resume.colors.headerText};
+        margin-bottom: 8px; 
+        color: ${resumeCustomization.colors.sectionHeaderText};
+        font-family: '${resumeCustomization.fonts.sectionHeaders}', sans-serif;
+        font-size: 14px;
       }
-      .skill-list { display: flex; flex-wrap: wrap; gap: 5px; }
+      
+      .skill-list { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 6px; 
+      }
+      
       .skill-tag { 
-        background: ${customization.resume.colors.accentColor}20; 
-        color: ${customization.resume.colors.accentColor};
-        padding: 2px 8px; 
-        border-radius: 12px; 
+        background: ${resumeCustomization.colors.primaryAccent}20; 
+        color: ${resumeCustomization.colors.primaryAccent};
+        padding: 4px 12px; 
+        border-radius: 15px; 
         font-size: 12px; 
+        font-weight: 500;
+        border: 1px solid ${resumeCustomization.colors.primaryAccent}40;
+      }
+      
+      .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+      }
+      
+      .project-card {
+        background: ${resumeCustomization.colors.cardBackground};
+        border: 1px solid ${resumeCustomization.colors.borderColor};
+        border-radius: ${safeBorders.borderRadius};
+        padding: 20px;
+        box-shadow: 0 2px 4px ${resumeCustomization.colors.shadowColor};
+      }
+      
+      .project-title {
+        font-weight: bold;
+        color: ${resumeCustomization.colors.subHeaderText};
+        font-family: '${resumeCustomization.fonts.subHeaders}', sans-serif;
+        margin-bottom: 8px;
+        font-size: 16px;
+      }
+      
+      .project-description {
+        color: ${resumeCustomization.colors.bodyText};
+        line-height: ${safeSpacing.lineHeight};
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+      
+      .project-tech {
+        font-weight: 500;
+        color: ${resumeCustomization.colors.bodyText};
+        margin-bottom: 8px;
+        font-size: 13px;
+      }
+      
+      .project-links {
+        color: ${resumeCustomization.colors.linkText};
+        font-size: 12px;
+      }
+      
+      .link-separator {
+        color: ${resumeCustomization.colors.bodyText};
+        margin: 0 8px;
       }
     </style>
   `;
-
-  // Template-specific styles
-  const templateStyles = getTemplateStyles(templateId, customization.resume);
 
   const renderSectionByOrder = (sections: string[]) => {
     return sections.map(sectionId => {
@@ -120,7 +301,7 @@ const generateResumeHTML = (data: ResumeData, templateId: string): string => {
         case 'experience':
           return experience.length > 0 ? `
             <div class="section">
-              <div class="section-title">Experience</div>
+              <div class="section-title">Professional Experience</div>
               ${experience.map(exp => `
                 <div class="item">
                   <div class="item-header">
@@ -130,9 +311,9 @@ const generateResumeHTML = (data: ResumeData, templateId: string): string => {
                     </div>
                     <div class="item-date">${exp.startDate} - ${exp.current ? 'Present' : exp.endDate}</div>
                   </div>
-                  <p>${exp.description}</p>
+                  <div class="item-description">${exp.description}</div>
                   ${exp.achievements.length > 0 ? `
-                    <ul style="margin-left: 20px; margin-top: 5px;">
+                    <ul class="achievements">
                       ${exp.achievements.map(achievement => `<li>${achievement}</li>`).join('')}
                     </ul>
                   ` : ''}
@@ -151,11 +332,11 @@ const generateResumeHTML = (data: ResumeData, templateId: string): string => {
                     <div>
                       <div class="item-title">${edu.degree} in ${edu.field}</div>
                       <div class="item-subtitle">${edu.institution}</div>
+                      ${edu.gpa ? `<div style="color: ${resumeCustomization.colors.bodyText}; font-size: 13px; margin-top: 4px;">GPA: ${edu.gpa}</div>` : ''}
+                      ${edu.honors ? `<div style="color: ${resumeCustomization.colors.bodyText}; font-size: 13px; margin-top: 2px;">${edu.honors}</div>` : ''}
                     </div>
                     <div class="item-date">${edu.startDate} - ${edu.endDate}</div>
                   </div>
-                  ${edu.gpa ? `<p>GPA: ${edu.gpa}</p>` : ''}
-                  ${edu.honors ? `<p>${edu.honors}</p>` : ''}
                 </div>
               `).join('')}
             </div>
@@ -165,27 +346,29 @@ const generateResumeHTML = (data: ResumeData, templateId: string): string => {
           return projects.length > 0 ? `
             <div class="section">
               <div class="section-title">Projects</div>
-              ${projects.map(project => `
-                <div class="item">
-                  <div class="item-title">${project.name}</div>
-                  <p>${project.description}</p>
-                  <p><strong>Technologies:</strong> ${project.technologies.join(', ')}</p>
-                  ${project.liveUrl || project.githubUrl ? `
-                    <p>
-                      ${project.liveUrl ? `<strong>Live:</strong> ${project.liveUrl}` : ''}
-                      ${project.liveUrl && project.githubUrl ? ' | ' : ''}
-                      ${project.githubUrl ? `<strong>GitHub:</strong> ${project.githubUrl}` : ''}
-                    </p>
-                  ` : ''}
-                </div>
-              `).join('')}
+              <div class="projects-grid">
+                ${projects.map(project => `
+                  <div class="project-card">
+                    <div class="project-title">${project.name}</div>
+                    <div class="project-description">${project.description}</div>
+                    <div class="project-tech"><strong>Technologies:</strong> ${project.technologies.join(', ')}</div>
+                    ${project.liveUrl || project.githubUrl ? `
+                      <div class="project-links">
+                        ${project.liveUrl ? `<strong>Live:</strong> ${project.liveUrl}` : ''}
+                        ${project.liveUrl && project.githubUrl ? '<span class="link-separator">|</span>' : ''}
+                        ${project.githubUrl ? `<strong>GitHub:</strong> ${project.githubUrl}` : ''}
+                      </div>
+                    ` : ''}
+                  </div>
+                `).join('')}
+              </div>
             </div>
           ` : '';
 
         case 'skills':
           return skills.length > 0 ? `
             <div class="section">
-              <div class="section-title">Skills</div>
+              <div class="section-title">Skills & Expertise</div>
               <div class="skills-grid">
                 ${['Technical', 'Soft', 'Language', 'Tool'].map(category => {
                   const categorySkills = skills.filter(skill => skill.category === category);
@@ -212,71 +395,23 @@ const generateResumeHTML = (data: ResumeData, templateId: string): string => {
 
   return `
     ${baseStyles}
-    ${templateStyles}
     <div class="resume">
       <div class="header">
         <div class="name">${personalInfo.fullName}</div>
         <div class="contact">
-          ${personalInfo.email} | ${personalInfo.phone} | ${personalInfo.location}
-          ${personalInfo.website ? ` | ${personalInfo.website}` : ''}
-          ${personalInfo.linkedin ? ` | LinkedIn: ${personalInfo.linkedin}` : ''}
-          ${personalInfo.github ? ` | GitHub: ${personalInfo.github}` : ''}
+          ${personalInfo.email} • ${personalInfo.phone} • ${personalInfo.location}
+          ${personalInfo.website ? ` • ${personalInfo.website}` : ''}
+          ${personalInfo.linkedin ? ` • LinkedIn: ${personalInfo.linkedin}` : ''}
+          ${personalInfo.github ? ` • GitHub: ${personalInfo.github}` : ''}
         </div>
+        ${personalInfo.summary ? `
+          <div class="summary">${personalInfo.summary}</div>
+        ` : ''}
       </div>
-
-      ${personalInfo.summary ? `
-        <div class="section">
-          <div class="section-title">Professional Summary</div>
-          <p>${personalInfo.summary}</p>
-        </div>
-      ` : ''}
 
       ${renderSectionByOrder(sectionOrder.resume)}
     </div>
   `;
-};
-
-const getTemplateStyles = (templateId: string, customization: any): string => {
-  // Template styles now work with customization
-  switch (templateId) {
-    case 'modern-blue':
-      return `
-        <style>
-          .section { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-          .name { text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
-        </style>
-      `;
-    case 'classic-black':
-      return `
-        <style>
-          .section { border: 2px solid ${customization.colors.borderColor}; }
-          .section-title { text-transform: uppercase; letter-spacing: 1px; }
-        </style>
-      `;
-    case 'creative-gradient':
-      return `
-        <style>
-          .header { 
-            background: linear-gradient(135deg, ${customization.colors.accentColor} 0%, ${customization.colors.headerText} 100%); 
-            color: white; 
-            padding: 20px; 
-            border-radius: 10px; 
-            margin-bottom: 30px;
-          }
-          .name { color: white !important; }
-          .contact { color: rgba(255,255,255,0.9) !important; }
-        </style>
-      `;
-    case 'minimal-white':
-      return `
-        <style>
-          .section { border: none; background: transparent; padding: 15px 0; }
-          .section-title { border-bottom: 1px solid ${customization.colors.borderColor}; }
-        </style>
-      `;
-    default:
-      return '';
-  }
 };
 
 export const exportToJSON = (data: ResumeData): void => {

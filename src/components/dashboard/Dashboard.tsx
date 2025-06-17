@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, FileText, Edit, Trash2, Download, Eye, Search, Filter, Calendar, Copy } from 'lucide-react';
+import { Plus, FileText, Edit, Trash2, Download, Eye, Search, Filter, Calendar, Copy, ExternalLink } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResumeStorage } from '../../hooks/useResumeStorage';
+import { generateResumePDF } from '../../utils/pdfGenerator';
+import { downloadPortfolioHTML } from '../../utils/portfolioGenerator';
 import type { SavedResume, ResumeData } from '../../types';
 
 interface DashboardProps {
@@ -16,6 +18,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterBy, setFilterBy] = useState<'all' | 'recent' | 'templates'>('all');
   const [isLoading, setIsLoading] = useState(true);
+  const [downloadingPDF, setDownloadingPDF] = useState<string | null>(null);
 
   useEffect(() => {
     loadSavedResumes();
@@ -54,6 +57,71 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
     } catch (error) {
       console.error('Error duplicating resume:', error);
       alert('Failed to duplicate resume. Please try again.');
+    }
+  };
+
+  const handleDownloadPDF = async (resume: SavedResume) => {
+    try {
+      setDownloadingPDF(resume.id);
+      await generateResumePDF(resume.data, 'default');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setDownloadingPDF(null);
+    }
+  };
+
+  const handleDownloadPortfolio = (resume: SavedResume) => {
+    try {
+      downloadPortfolioHTML(resume.data, 'default');
+    } catch (error) {
+      console.error('Error generating portfolio:', error);
+      alert('Failed to generate portfolio. Please try again.');
+    }
+  };
+
+  const handlePreviewResume = (resume: SavedResume) => {
+    // Create a temporary preview window
+    const previewWindow = window.open('', '_blank', 'width=800,height=600,scrollbars=yes');
+    if (previewWindow) {
+      previewWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${resume.title} - Preview</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .section { margin-bottom: 25px; }
+            .section-title { font-size: 18px; font-weight: bold; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>${resume.data.personalInfo.fullName}</h1>
+            <p>${resume.data.personalInfo.email} | ${resume.data.personalInfo.phone} | ${resume.data.personalInfo.location}</p>
+          </div>
+          ${resume.data.personalInfo.summary ? `
+            <div class="section">
+              <div class="section-title">Professional Summary</div>
+              <p>${resume.data.personalInfo.summary}</p>
+            </div>
+          ` : ''}
+          <div class="section">
+            <div class="section-title">Experience</div>
+            ${resume.data.experience.map(exp => `
+              <div style="margin-bottom: 15px;">
+                <h3>${exp.position} at ${exp.company}</h3>
+                <p><em>${exp.startDate} - ${exp.current ? 'Present' : exp.endDate}</em></p>
+                <p>${exp.description}</p>
+              </div>
+            `).join('')}
+          </div>
+        </body>
+        </html>
+      `);
+      previewWindow.document.close();
     }
   };
 
@@ -269,12 +337,33 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
                   </div>
                   
                   <div className="flex items-center space-x-2">
-                    <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200">
+                    <button 
+                      onClick={() => handlePreviewResume(resume)}
+                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                      title="Preview Resume"
+                    >
                       <Eye className="w-4 h-4" />
                     </button>
-                    <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200">
-                      <Download className="w-4 h-4" />
-                    </button>
+                    <div className="relative group">
+                      <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200">
+                        <Download className="w-4 h-4" />
+                      </button>
+                      <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                        <button
+                          onClick={() => handleDownloadPDF(resume)}
+                          disabled={downloadingPDF === resume.id}
+                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg disabled:opacity-50"
+                        >
+                          {downloadingPDF === resume.id ? 'Generating PDF...' : 'Download PDF'}
+                        </button>
+                        <button
+                          onClick={() => handleDownloadPortfolio(resume)}
+                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-b-lg"
+                        >
+                          Download Portfolio
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
