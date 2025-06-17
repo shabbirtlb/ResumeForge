@@ -1,5 +1,5 @@
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
+import { supabase, testSupabaseConnection } from '../lib/supabase';
 import type { ResumeData, SavedResume } from '../types';
 
 export const useResumeStorage = () => {
@@ -66,15 +66,9 @@ export const useResumeStorage = () => {
     
     try {
       // Test Supabase connection first
-      const { data: connectionTest, error: connectionError } = await supabase
-        .from('resumes')
-        .select('count')
-        .eq('user_id', user.id)
-        .limit(1);
-
-      if (connectionError) {
-        console.error('Supabase connection error:', connectionError);
-        throw new Error(`Database connection failed: ${connectionError.message}`);
+      const connectionOk = await testSupabaseConnection();
+      if (!connectionOk) {
+        throw new Error('Unable to connect to the database. Please verify your Supabase configuration and internet connection.');
       }
 
       const { data: resumes, error } = await supabase
@@ -102,7 +96,7 @@ export const useResumeStorage = () => {
       if (error instanceof Error) {
         // Check if it's a network error
         if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
-          throw new Error('Network error: Unable to connect to the database. Please check your internet connection and try again.');
+          throw new Error('Network error: Unable to connect to the database. Please check your Supabase configuration and internet connection.');
         }
         throw error;
       }

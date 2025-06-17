@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, FileText, Edit, Trash2, Download, Search, Filter, Calendar, Copy, Globe, AlertCircle } from 'lucide-react';
+import { Plus, FileText, Edit, Trash2, Download, Search, Filter, Calendar, Copy, Globe, AlertCircle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResumeStorage } from '../../hooks/useResumeStorage';
 import { generateResumePDF } from '../../utils/pdfGenerator';
@@ -133,9 +133,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
           <div className="space-y-3">
             <button
               onClick={loadSavedResumes}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+              className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
             >
-              Try Again
+              <RefreshCw className="w-4 h-4" />
+              <span>Try Again</span>
             </button>
             <button
               onClick={onCreateNew}
@@ -143,6 +144,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
             >
               Create New Resume (Offline)
             </button>
+          </div>
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              <strong>Troubleshooting:</strong>
+              <br />• Check your internet connection
+              <br />• Verify Supabase configuration in .env file
+              <br />• Ensure your Supabase project is active
+            </p>
           </div>
         </div>
       </div>
