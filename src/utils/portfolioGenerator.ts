@@ -16,7 +16,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
     cardShadow: '0 10px 25px rgba(0,0,0,0.1)', 
     animationSpeed: '0.3s' 
   };
-  const safeFonts = portfolioCustomization.fonts || {
+  const portfolioFonts = portfolioCustomization.fonts || {
     mainHeader: 'Inter',
     sectionHeaders: 'Inter',
     subHeaders: 'Inter',
@@ -24,7 +24,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
     contactInfo: 'Inter',
     dates: 'Inter'
   };
-  const safeColors = portfolioCustomization.colors || {
+  const portfolioColors = portfolioCustomization.colors || {
     mainHeaderText: '#ffffff',
     sectionHeaderText: '#1f2937',
     subHeaderText: '#374151',
@@ -59,120 +59,21 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
     skillTagBackground: '#f1f5f9',
     timelineAccent: '#2563eb'
   };
+  const portfolioLayout = safeLayout;
 
-  const renderSectionByOrder = (sections: string[]) => {
-    return sections.map(sectionId => {
-      switch (sectionId) {
-        case 'experience':
-          return experience.length > 0 ? `
-            <section id="experience" class="section">
-              <div class="container">
-                <h2 class="section-title">Experience</h2>
-                <div class="timeline">
-                  ${experience.map(exp => `
-                  <div class="timeline-item">
-                    <h3>${exp.position}</h3>
-                    <div class="company">${exp.company}</div>
-                    <div class="date">${exp.startDate} - ${exp.current ? 'Present' : exp.endDate}</div>
-                    <p>${exp.description}</p>
-                    ${exp.achievements.length > 0 ? `
-                    <ul class="achievements-list">
-                      ${exp.achievements.map(achievement => `<li>${achievement}</li>`).join('')}
-                    </ul>
-                    ` : ''}
-                  </div>
-                  `).join('')}
-                </div>
-              </div>
-            </section>
-          ` : '';
+  // Get available skill categories
+  const availableCategories = ['Technical', 'Soft', 'Language', 'Tool'].filter(category => 
+    skills.some(skill => skill.category === category)
+  );
 
-        case 'projects':
-          return projects.length > 0 ? `
-            <section id="projects" class="section">
-              <div class="container">
-                <h2 class="section-title">Projects</h2>
-                <div class="projects-grid">
-                  ${projects.map(project => `
-                  <div class="project-card">
-                    <div class="project-image">
-                      ${project.imageUrl ? `<img src="${project.imageUrl}" alt="${project.name}" style="width: 100%; height: 100%; object-fit: cover;">` : '<i class="fas fa-code"></i>'}
-                    </div>
-                    <div class="project-content">
-                      <h3>${project.name}</h3>
-                      <p>${project.description}</p>
-                      <div class="tech-tags">
-                        ${project.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
-                      </div>
-                      <div class="project-links">
-                        ${project.liveUrl ? `<a href="${project.liveUrl}" target="_blank"><i class="fas fa-external-link-alt"></i> Live Demo</a>` : ''}
-                        ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank"><i class="fab fa-github"></i> GitHub</a>` : ''}
-                      </div>
-                    </div>
-                  </div>
-                  `).join('')}
-                </div>
-              </div>
-            </section>
-          ` : '';
-
-        case 'skills':
-          return skills.length > 0 ? `
-            <section id="skills" class="section">
-              <div class="container">
-                <h2 class="section-title">Skills</h2>
-                <div class="skills-container">
-                  ${['Technical', 'Soft', 'Language', 'Tool'].map(category => {
-                    const categorySkills = skills.filter(skill => skill.category === category);
-                    return categorySkills.length > 0 ? `
-                      <div class="skills-category">
-                        <h3>${category} Skills</h3>
-                        <div class="skills-list">
-                          ${categorySkills.map(skill => `<div class="skill-item">${skill.name}</div>`).join('')}
-                        </div>
-                      </div>
-                    ` : '';
-                  }).join('')}
-                </div>
-              </div>
-            </section>
-          ` : '';
-
-        case 'education':
-          return education.length > 0 ? `
-            <section id="education" class="section">
-              <div class="container">
-                <h2 class="section-title">Education</h2>
-                <div class="timeline">
-                  ${education.map(edu => `
-                  <div class="timeline-item">
-                    <h3>${edu.degree} in ${edu.field}</h3>
-                    <div class="company">${edu.institution}</div>
-                    <div class="date">${edu.startDate} - ${edu.endDate}</div>
-                    ${edu.gpa ? `<p>GPA: ${edu.gpa}</p>` : ''}
-                    ${edu.honors ? `<p>${edu.honors}</p>` : ''}
-                  </div>
-                  `).join('')}
-                </div>
-              </div>
-            </section>
-          ` : '';
-
-        default:
-          return '';
-      }
-    }).join('');
-  };
-
-  const baseHTML = `
-<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${personalInfo.fullName} - Portfolio</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Georgia:wght@400;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&family=Lato:wght@400;700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;500;600;700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Georgia:wght@400;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&family=Lato:wght@400;700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -180,12 +81,15 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             box-sizing: border-box;
         }
         
-        body {
-            font-family: '${safeFonts.bodyText}', sans-serif;
-            line-height: ${safeSpacing.lineHeight};
-            color: ${safeColors.bodyText};
-            background-color: ${safeColors.pageBackground};
+        html {
             scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: '${portfolioFonts.bodyText}', sans-serif;
+            line-height: ${safeSpacing.lineHeight};
+            color: ${portfolioColors.bodyText};
+            background-color: ${portfolioColors.pageBackground};
         }
         
         .container {
@@ -196,16 +100,16 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         
         /* Header */
         .header {
-            background: ${safeColors.heroBackground};
-            color: ${safeColors.mainHeaderText};
+            background: ${portfolioColors.heroBackground};
+            color: ${portfolioColors.mainHeaderText};
             padding: 100px 0;
             text-align: center;
-            min-height: ${safeLayout.heroHeight};
+            position: relative;
+            overflow: hidden;
+            min-height: ${portfolioLayout.heroHeight};
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
         }
         
         .header::before {
@@ -215,29 +119,27 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             left: 0;
             right: 0;
             bottom: 0;
-            background: ${safeColors.heroOverlay || 'rgba(0,0,0,0.1)'};
-            z-index: 1;
+            background: ${portfolioColors.heroOverlay || 'rgba(0,0,0,0.1)'};
         }
         
         .header-content {
             position: relative;
-            z-index: 2;
+            z-index: 10;
         }
         
         .header h1 {
             font-size: 3.5rem;
             margin-bottom: 20px;
             font-weight: 700;
-            font-family: '${safeFonts.mainHeader}', sans-serif;
+            font-family: '${portfolioFonts.mainHeader}', sans-serif;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            animation: fadeInUp 1s ease-out;
         }
         
         .header .subtitle {
             font-size: 1.5rem;
             margin-bottom: 30px;
             opacity: 0.95;
-            animation: fadeInUp 1s ease-out 0.2s both;
+            font-weight: 300;
         }
         
         .contact-info {
@@ -246,51 +148,65 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             gap: 30px;
             margin-bottom: 40px;
             flex-wrap: wrap;
-            animation: fadeInUp 1s ease-out 0.4s both;
         }
         
-        .contact-item {
+        .contact-info span {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 1.1rem;
-            color: ${safeColors.contactText};
-            font-family: '${safeFonts.contactInfo}', sans-serif;
+            font-size: 1rem;
+            opacity: 0.9;
         }
         
-        .social-links {
+        .cta-buttons {
             display: flex;
+            gap: 20px;
             justify-content: center;
-            gap: 25px;
-            margin-top: 40px;
             flex-wrap: wrap;
-            animation: fadeInUp 1s ease-out 0.6s both;
         }
         
-        .social-links a {
-            color: ${safeColors.mainHeaderText};
-            font-size: 2rem;
-            transition: all ${safeLayout.animationSpeed} ease;
-            padding: 15px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
+        .btn {
+            padding: 15px 30px;
+            border-radius: ${safeBorders.borderRadius};
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: rgba(255,255,255,0.2);
+            color: ${portfolioColors.mainHeaderText};
+            border: 2px solid rgba(255,255,255,0.3);
             backdrop-filter: blur(10px);
         }
         
-        .social-links a:hover {
-            transform: translateY(-5px) scale(1.1);
-            background: rgba(255,255,255,0.2);
-            box-shadow: ${safeLayout.cardShadow};
+        .btn-primary:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: ${portfolioColors.primaryAccent};
+            border: 2px solid white;
+        }
+        
+        .btn-secondary:hover {
+            background: ${portfolioColors.primaryAccent};
+            color: white;
+            transform: translateY(-2px);
         }
         
         /* Navigation */
         .nav {
-            background: ${safeColors.navigationBackground || safeColors.cardBackground};
-            box-shadow: ${safeLayout.cardShadow};
+            background: ${portfolioColors.navigationBackground || '#ffffff'};
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
             position: sticky;
             top: 0;
             z-index: 100;
-            border-bottom: 1px solid ${safeColors.borderColor};
             backdrop-filter: blur(10px);
         }
         
@@ -298,7 +214,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             list-style: none;
             display: flex;
             justify-content: center;
-            padding: 25px 0;
+            padding: 20px 0;
             flex-wrap: wrap;
             gap: 10px;
         }
@@ -309,56 +225,39 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         
         .nav a {
             text-decoration: none;
-            color: ${safeColors.bodyText};
+            color: ${portfolioColors.bodyText};
             font-weight: 600;
-            font-size: 1.1rem;
-            transition: all ${safeLayout.animationSpeed} ease;
-            padding: 10px 20px;
+            font-size: 1rem;
+            padding: 10px 15px;
             border-radius: ${safeBorders.borderRadius};
+            transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
         }
         
-        .nav a::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-        
-        .nav a:hover {
-            color: ${safeColors.primaryAccent};
-            background: ${safeColors.primaryAccent}10;
+        .nav a:hover, .nav a.active {
+            color: ${portfolioColors.primaryAccent};
+            background: ${portfolioColors.primaryAccent}10;
             transform: translateY(-2px);
-        }
-        
-        .nav a:hover::before {
-            left: 100%;
         }
         
         /* Sections */
         .section {
-            padding: ${safeSpacing.sectionSpacing} 0;
+            padding: 80px 0;
             position: relative;
         }
         
         .section:nth-child(even) {
-            background: ${safeColors.alternateBackground};
+            background: ${portfolioColors.alternateBackground};
         }
         
         .section-title {
             text-align: center;
             font-size: 3rem;
             margin-bottom: 60px;
-            color: ${safeColors.sectionHeaderText};
-            font-family: '${safeFonts.sectionHeaders}', sans-serif;
+            color: ${portfolioColors.sectionHeaderText};
+            font-family: '${portfolioFonts.sectionHeaders}', sans-serif;
             font-weight: 700;
             position: relative;
-            animation: fadeInUp 0.8s ease-out;
         }
         
         .section-title::after {
@@ -369,7 +268,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             transform: translateX(-50%);
             width: 80px;
             height: 4px;
-            background: linear-gradient(90deg, ${safeColors.primaryAccent}, ${safeColors.secondaryAccent});
+            background: ${portfolioColors.primaryAccent};
             border-radius: 2px;
         }
         
@@ -379,136 +278,35 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             margin: 0 auto;
             text-align: center;
             font-size: 1.2rem;
-            line-height: ${safeSpacing.lineHeight};
-            color: ${safeColors.bodyText};
-            padding: 40px;
-            background: ${safeColors.cardBackground};
-            border-radius: ${safeBorders.borderRadius};
-            box-shadow: ${safeLayout.cardShadow};
-            animation: fadeInUp 0.8s ease-out;
-        }
-        
-        /* Timeline */
-        .timeline {
-            max-width: 900px;
-            margin: 0 auto;
-            position: relative;
-        }
-        
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: linear-gradient(180deg, ${safeColors.primaryAccent}, ${safeColors.secondaryAccent});
-            transform: translateX(-50%);
-            border-radius: 2px;
-        }
-        
-        .timeline-item {
-            background: ${safeColors.cardBackground};
-            padding: 40px;
-            margin-bottom: 40px;
-            border-radius: ${safeBorders.borderRadius};
-            box-shadow: ${safeLayout.cardShadow};
-            border-left: 6px solid ${safeColors.primaryAccent};
-            position: relative;
-            margin-left: 60px;
-            animation: slideInLeft 0.8s ease-out;
-            transition: all ${safeLayout.animationSpeed} ease;
-        }
-        
-        .timeline-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-        }
-        
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -60px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
-            background: ${safeColors.primaryAccent};
-            border-radius: 50%;
-            border: 4px solid ${safeColors.cardBackground};
-            box-shadow: 0 0 0 4px ${safeColors.primaryAccent}30;
-        }
-        
-        .timeline-item h3 {
-            color: ${safeColors.subHeaderText};
-            margin-bottom: 8px;
-            font-family: '${safeFonts.subHeaders}', sans-serif;
-            font-size: 1.4rem;
-            font-weight: 600;
-        }
-        
-        .timeline-item .company {
-            color: ${safeColors.primaryAccent};
-            font-style: italic;
-            margin-bottom: 12px;
-            font-weight: 500;
-            font-size: 1.1rem;
-        }
-        
-        .timeline-item .date {
-            color: ${safeColors.dateText};
-            font-size: 0.95rem;
-            margin-bottom: 20px;
-            font-family: '${safeFonts.dates}', sans-serif;
-            font-weight: 500;
-        }
-        
-        .timeline-item p {
-            line-height: ${safeSpacing.lineHeight};
-            color: ${safeColors.bodyText};
-            margin-bottom: ${safeSpacing.paragraphSpacing};
-        }
-        
-        .achievements-list {
-            margin-top: 15px;
-            margin-left: 20px;
-            list-style-type: disc;
-            list-style-position: outside;
-        }
-        
-        .achievements-list li {
-            color: ${safeColors.bodyText};
-            margin-bottom: 8px;
-            line-height: ${safeSpacing.lineHeight};
-            padding-left: 5px;
+            line-height: 1.8;
+            color: ${portfolioColors.bodyText};
         }
         
         /* Projects */
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 40px;
-            margin-top: 60px;
+            margin-top: 50px;
         }
         
         .project-card {
-            background: ${safeColors.projectCardBackground || safeColors.cardBackground};
+            background: ${portfolioColors.projectCardBackground || portfolioColors.cardBackground};
             border-radius: ${safeBorders.borderRadius};
             overflow: hidden;
-            box-shadow: ${safeLayout.cardShadow};
-            transition: all ${safeLayout.animationSpeed} ease;
-            border: 1px solid ${safeColors.borderColor};
-            animation: fadeInUp 0.8s ease-out;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid ${portfolioColors.borderColor};
         }
         
         .project-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
         
         .project-image {
-            height: 250px;
-            background: linear-gradient(135deg, ${safeColors.primaryAccent}, ${safeColors.secondaryAccent});
+            height: 200px;
+            background: linear-gradient(135deg, ${portfolioColors.primaryAccent}, ${portfolioColors.secondaryAccent});
             display: flex;
             align-items: center;
             justify-content: center;
@@ -518,38 +316,22 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             overflow: hidden;
         }
         
-        .project-image::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
-            transform: translateX(-100%);
-            transition: transform 0.6s;
-        }
-        
-        .project-card:hover .project-image::before {
-            transform: translateX(100%);
-        }
-        
         .project-content {
             padding: 30px;
         }
         
         .project-content h3 {
             margin-bottom: 15px;
-            color: ${safeColors.subHeaderText};
-            font-family: '${safeFonts.subHeaders}', sans-serif;
-            font-size: 1.3rem;
+            color: ${portfolioColors.subHeaderText};
+            font-family: '${portfolioFonts.subHeaders}', sans-serif;
+            font-size: 1.5rem;
             font-weight: 600;
         }
         
         .project-content p {
-            color: ${safeColors.bodyText};
+            color: ${portfolioColors.bodyText};
             margin-bottom: 20px;
-            line-height: ${safeSpacing.lineHeight};
+            line-height: 1.6;
         }
         
         .tech-tags {
@@ -560,20 +342,12 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         }
         
         .tech-tag {
-            background: ${safeColors.skillTagBackground || safeColors.primaryAccent + '20'};
-            color: ${safeColors.primaryAccent};
-            padding: 6px 15px;
-            border-radius: 25px;
-            font-size: 0.85rem;
+            background: ${portfolioColors.skillTagBackground || portfolioColors.sectionBackground};
+            color: ${portfolioColors.primaryAccent};
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
             font-weight: 500;
-            border: 1px solid ${safeColors.primaryAccent}30;
-            transition: all ${safeLayout.animationSpeed} ease;
-        }
-        
-        .tech-tag:hover {
-            background: ${safeColors.primaryAccent};
-            color: white;
-            transform: translateY(-2px);
         }
         
         .project-links {
@@ -582,21 +356,17 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         }
         
         .project-links a {
-            color: ${safeColors.linkText};
+            color: ${portfolioColors.linkText};
             text-decoration: none;
             font-weight: 600;
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 20px;
-            border: 2px solid ${safeColors.linkText};
-            border-radius: ${safeBorders.borderRadius};
-            transition: all ${safeLayout.animationSpeed} ease;
+            transition: all 0.3s ease;
         }
         
         .project-links a:hover {
-            background: ${safeColors.linkText};
-            color: white;
+            color: ${portfolioColors.primaryAccent};
             transform: translateY(-2px);
         }
         
@@ -604,144 +374,175 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         .skills-container {
             max-width: 1000px;
             margin: 0 auto;
+        }
+        
+        .skills-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 50px;
+        }
+        
+        .skills-toggle-inner {
+            display: inline-flex;
+            background: ${portfolioColors.sectionBackground};
+            border-radius: ${safeBorders.borderRadius};
+            padding: 8px;
+            gap: 4px;
+        }
+        
+        .skill-toggle-btn {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            color: ${portfolioColors.bodyText};
+            font-weight: 600;
+            border-radius: ${safeBorders.borderRadius};
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .skill-toggle-btn.active {
+            background: ${portfolioColors.primaryAccent};
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .skills-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 40px;
-        }
-        
-        .skills-category {
-            background: ${safeColors.cardBackground};
-            padding: 30px;
-            border-radius: ${safeBorders.borderRadius};
-            box-shadow: ${safeLayout.cardShadow};
-            border-top: 4px solid ${safeColors.primaryAccent};
-            animation: fadeInUp 0.8s ease-out;
-            transition: all ${safeLayout.animationSpeed} ease;
-        }
-        
-        .skills-category:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-        }
-        
-        .skills-category h3 {
-            margin-bottom: 25px;
-            color: ${safeColors.sectionHeaderText};
-            font-family: '${safeFonts.sectionHeaders}', sans-serif;
-            font-size: 1.3rem;
-            font-weight: 600;
-            text-align: center;
-        }
-        
-        .skills-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
+            gap: 30px;
         }
         
         .skill-item {
-            background: ${safeColors.skillTagBackground || safeColors.alternateBackground};
-            padding: 12px 20px;
-            border-radius: 30px;
-            font-weight: 500;
-            color: ${safeColors.bodyText};
-            border: 1px solid ${safeColors.borderColor};
-            transition: all ${safeLayout.animationSpeed} ease;
-            cursor: default;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: ${portfolioColors.cardBackground};
+            border-radius: ${safeBorders.borderRadius};
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
         }
         
         .skill-item:hover {
-            background: ${safeColors.primaryAccent};
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+        
+        .skill-name {
+            flex: 1;
+            font-weight: 600;
+            color: ${portfolioColors.bodyText};
+            font-size: 1.1rem;
+        }
+        
+        .skill-progress {
+            flex: 1;
+        }
+        
+        .skill-bar {
+            height: 8px;
+            background: ${portfolioColors.borderColor};
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .skill-fill {
+            height: 100%;
+            background: linear-gradient(90deg, ${portfolioColors.primaryAccent}, ${portfolioColors.secondaryAccent});
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+        
+        .skill-level {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: ${portfolioColors.bodyText};
+            opacity: 0.8;
+        }
+        
+        /* Timeline */
+        .timeline {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .timeline-item {
+            background: ${portfolioColors.cardBackground};
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: ${safeBorders.borderRadius};
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid ${portfolioColors.primaryAccent};
+        }
+        
+        .timeline-item h3 {
+            color: ${portfolioColors.subHeaderText};
+            margin-bottom: 5px;
+            font-family: '${portfolioFonts.subHeaders}', sans-serif;
+        }
+        
+        .timeline-item .company {
+            color: ${portfolioColors.bodyText};
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+        
+        .timeline-item .date {
+            color: ${portfolioColors.dateText};
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            font-family: '${portfolioFonts.dates}', sans-serif;
         }
         
         /* Contact */
         .contact-section {
-            background: ${safeColors.sectionBackground};
-            padding: ${safeSpacing.sectionSpacing} 0;
-        }
-        
-        .contact-content {
+            background: linear-gradient(135deg, ${portfolioColors.primaryAccent}15, ${portfolioColors.secondaryAccent}15);
             text-align: center;
-            max-width: 700px;
-            margin: 0 auto;
-            background: ${safeColors.cardBackground};
-            padding: 50px;
-            border-radius: ${safeBorders.borderRadius};
-            box-shadow: ${safeLayout.cardShadow};
-            animation: fadeInUp 0.8s ease-out;
         }
         
         .contact-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 30px;
-            margin-top: 40px;
+            margin-top: 50px;
         }
         
-        .contact-item-large {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            padding: 25px;
-            background: ${safeColors.alternateBackground};
+        .contact-item {
+            background: ${portfolioColors.cardBackground};
+            padding: 30px;
             border-radius: ${safeBorders.borderRadius};
-            transition: all ${safeLayout.animationSpeed} ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
         }
         
-        .contact-item-large:hover {
+        .contact-item:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
         }
         
-        .contact-item-large i {
-            color: ${safeColors.primaryAccent};
+        .contact-item i {
             font-size: 2rem;
+            color: ${portfolioColors.primaryAccent};
+            margin-bottom: 15px;
         }
         
-        .contact-item-large a {
-            color: ${safeColors.linkText};
+        .contact-item h3 {
+            margin-bottom: 10px;
+            color: ${portfolioColors.subHeaderText};
+            font-weight: 600;
+        }
+        
+        .contact-item a {
+            color: ${portfolioColors.linkText};
             text-decoration: none;
             font-weight: 500;
-            transition: color ${safeLayout.animationSpeed} ease;
         }
         
-        .contact-item-large a:hover {
-            color: ${safeColors.primaryAccent};
-        }
-        
-        /* Footer */
-        .footer {
-            background: ${safeColors.footerBackground || safeColors.sectionHeaderText};
-            color: white;
-            text-align: center;
-            padding: 40px 0;
-        }
-        
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes slideInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+        .contact-item a:hover {
+            color: ${portfolioColors.primaryAccent};
         }
         
         /* Responsive */
@@ -759,10 +560,14 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
                 gap: 15px;
             }
             
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
             .nav ul {
                 flex-direction: column;
-                gap: 10px;
-                padding: 20px 0;
+                gap: 5px;
             }
             
             .nav li {
@@ -773,96 +578,53 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
                 grid-template-columns: 1fr;
             }
             
-            .timeline::before {
-                left: 20px;
-            }
-            
-            .timeline-item {
-                margin-left: 50px;
-            }
-            
-            .timeline-item::before {
-                left: -45px;
+            .skills-grid {
+                grid-template-columns: 1fr;
             }
             
             .section {
-                padding: 60px 0;
+                padding: 50px 0;
             }
             
             .section-title {
-                font-size: 2.2rem;
-            }
-            
-            .skills-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .contact-grid {
-                grid-template-columns: 1fr;
+                font-size: 2rem;
             }
         }
         
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 15px;
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
             }
-            
-            .header {
-                padding: 60px 0;
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .social-links a {
-                font-size: 1.5rem;
-                padding: 12px;
-            }
-            
-            .timeline-item {
-                margin-left: 0;
-                border-left: none;
-                border-top: 4px solid ${safeColors.primaryAccent};
-            }
-            
-            .timeline::before {
-                display: none;
-            }
-            
-            .timeline-item::before {
-                display: none;
-            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
         }
     </style>
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
+    <header class="header" id="home">
         <div class="container">
-            <div class="header-content">
+            <div class="header-content fade-in-up">
                 <h1>${personalInfo.fullName}</h1>
-                <p class="subtitle">${personalInfo.summary || 'Professional Portfolio'}</p>
+                <p class="subtitle">${personalInfo.summary || 'Full Stack Developer & Creative Problem Solver'}</p>
                 
                 <div class="contact-info">
-                    <div class="contact-item">
-                        <i class="fas fa-envelope"></i>
-                        ${personalInfo.email}
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-phone"></i>
-                        ${personalInfo.phone}
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        ${personalInfo.location}
-                    </div>
+                    <span><i class="fas fa-envelope"></i> ${personalInfo.email}</span>
+                    <span><i class="fas fa-phone"></i> ${personalInfo.phone}</span>
+                    <span><i class="fas fa-map-marker-alt"></i> ${personalInfo.location}</span>
                 </div>
                 
-                <div class="social-links">
-                    ${personalInfo.website ? `<a href="${personalInfo.website}" target="_blank" title="Website"><i class="fas fa-globe"></i></a>` : ''}
-                    ${personalInfo.linkedin ? `<a href="${personalInfo.linkedin}" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>` : ''}
-                    ${personalInfo.github ? `<a href="${personalInfo.github}" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>` : ''}
+                <div class="cta-buttons">
+                    <a href="#projects" class="btn btn-primary">View My Work</a>
+                    <a href="#contact" class="btn btn-secondary">Get In Touch</a>
                 </div>
             </div>
         </div>
@@ -871,11 +633,12 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
     <!-- Navigation -->
     <nav class="nav">
         <ul>
+            <li><a href="#home">Home</a></li>
             <li><a href="#about">About</a></li>
-            ${sectionOrder.portfolio.includes('experience') ? '<li><a href="#experience">Experience</a></li>' : ''}
-            ${sectionOrder.portfolio.includes('projects') ? '<li><a href="#projects">Projects</a></li>' : ''}
-            ${sectionOrder.portfolio.includes('skills') ? '<li><a href="#skills">Skills</a></li>' : ''}
-            ${sectionOrder.portfolio.includes('education') ? '<li><a href="#education">Education</a></li>' : ''}
+            ${data.experience.length > 0 ? '<li><a href="#experience">Experience</a></li>' : ''}
+            ${data.projects.length > 0 ? '<li><a href="#projects">Projects</a></li>' : ''}
+            ${data.skills.length > 0 ? '<li><a href="#skills">Skills</a></li>' : ''}
+            ${data.education.length > 0 ? '<li><a href="#education">Education</a></li>' : ''}
             <li><a href="#contact">Contact</a></li>
         </ul>
     </nav>
@@ -884,60 +647,181 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
     <section id="about" class="section">
         <div class="container">
             <h2 class="section-title">About Me</h2>
-            <div class="about-content">
-                <p>${personalInfo.summary || 'Passionate professional with expertise in various technologies and a commitment to delivering high-quality solutions.'}</p>
+            <div class="about-content fade-in-up">
+                <p>${personalInfo.summary || 'Passionate developer with expertise in modern web technologies and a commitment to creating exceptional user experiences. I love turning complex problems into simple, beautiful solutions.'}</p>
             </div>
         </div>
     </section>
 
-    <!-- Dynamic Sections in Custom Order -->
-    ${renderSectionByOrder(sectionOrder.portfolio)}
-
-    <!-- Contact Section -->
-    <section id="contact" class="contact-section">
+    ${data.projects.length > 0 ? `
+    <!-- Projects Section -->
+    <section id="projects" class="section">
         <div class="container">
-            <h2 class="section-title">Get In Touch</h2>
-            <div class="contact-content">
-                <p style="font-size: 1.2rem; margin-bottom: 30px; color: ${safeColors.bodyText};">
-                    Let's connect and discuss opportunities
-                </p>
-                <div class="contact-grid">
-                    <div class="contact-item-large">
-                        <i class="fas fa-envelope"></i>
-                        <div>
-                            <strong>Email</strong>
-                            <br>
-                            <a href="mailto:${personalInfo.email}">${personalInfo.email}</a>
-                        </div>
+            <h2 class="section-title">Featured Projects</h2>
+            <div class="projects-grid">
+                ${data.projects.map((project, index) => `
+                <div class="project-card fade-in-up">
+                    <div class="project-image">
+                        ${project.imageUrl ? `<img src="${project.imageUrl}" alt="${project.name}" style="width: 100%; height: 100%; object-fit: cover;">` : 
+                          index === 0 ? '🚀' : index === 1 ? '💻' : index === 2 ? '🎨' : '⚡'}
                     </div>
-                    <div class="contact-item-large">
-                        <i class="fas fa-phone"></i>
-                        <div>
-                            <strong>Phone</strong>
-                            <br>
-                            <a href="tel:${personalInfo.phone}">${personalInfo.phone}</a>
+                    <div class="project-content">
+                        <h3>${project.name}</h3>
+                        <p>${project.description}</p>
+                        <div class="tech-tags">
+                            ${project.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
                         </div>
-                    </div>
-                    <div class="contact-item-large">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <div>
-                            <strong>Location</strong>
-                            <br>
-                            ${personalInfo.location}
+                        <div class="project-links">
+                            ${project.liveUrl ? `<a href="${project.liveUrl}" target="_blank"><i class="fas fa-external-link-alt"></i> Live Demo</a>` : ''}
+                            ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank"><i class="fab fa-github"></i> GitHub</a>` : ''}
                         </div>
                     </div>
                 </div>
+                `).join('')}
             </div>
         </div>
     </section>
+    ` : ''}
 
-    <!-- Footer -->
-    <footer class="footer">
+    ${data.skills.length > 0 ? `
+    <!-- Skills Section -->
+    <section id="skills" class="section">
         <div class="container">
-            <p>&copy; ${new Date().getFullYear()} ${personalInfo.fullName}. All rights reserved.</p>
-            <p style="margin-top: 10px; opacity: 0.8;">Built with ResumeForge</p>
+            <h2 class="section-title">Skills & Expertise</h2>
+            <div class="skills-container">
+                ${availableCategories.length > 1 ? `
+                <div class="skills-toggle">
+                    <div class="skills-toggle-inner">
+                        ${availableCategories.map((category, index) => `
+                        <button class="skill-toggle-btn ${index === 0 ? 'active' : ''}" onclick="showSkills('${category}')">${category}</button>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${availableCategories.map((category, categoryIndex) => `
+                <div id="skills-${category}" class="skills-grid ${categoryIndex === 0 ? '' : 'hidden'}">
+                    ${data.skills.filter(skill => skill.category === category).map(skill => `
+                    <div class="skill-item fade-in-up">
+                        <div class="skill-name">${skill.name}</div>
+                        <div class="skill-progress">
+                            <div class="skill-bar">
+                                <div class="skill-fill" style="width: ${
+                                  skill.level === 'Expert' ? '95%' : 
+                                  skill.level === 'Advanced' ? '80%' : 
+                                  skill.level === 'Intermediate' ? '65%' : '40%'
+                                }"></div>
+                            </div>
+                            <div class="skill-level">
+                                <span>${skill.level}</span>
+                                <span>${
+                                  skill.level === 'Expert' ? '95%' : 
+                                  skill.level === 'Advanced' ? '80%' : 
+                                  skill.level === 'Intermediate' ? '65%' : '40%'
+                                }</span>
+                            </div>
+                        </div>
+                    </div>
+                    `).join('')}
+                </div>
+                `).join('')}
+            </div>
         </div>
-    </footer>
+    </section>
+    ` : ''}
+
+    ${data.experience.length > 0 ? `
+    <!-- Experience Section -->
+    <section id="experience" class="section">
+        <div class="container">
+            <h2 class="section-title">Experience</h2>
+            <div class="timeline">
+                ${data.experience.map(exp => `
+                <div class="timeline-item fade-in-up">
+                    <h3>${exp.position}</h3>
+                    <div class="company">${exp.company}</div>
+                    <div class="date">${exp.startDate} - ${exp.current ? 'Present' : exp.endDate}</div>
+                    <p>${exp.description}</p>
+                    ${exp.achievements.length > 0 ? `
+                    <ul style="margin-top: 15px; margin-left: 20px;">
+                        ${exp.achievements.map(achievement => `<li>${achievement}</li>`).join('')}
+                    </ul>
+                    ` : ''}
+                </div>
+                `).join('')}
+            </div>
+        </div>
+    </section>
+    ` : ''}
+
+    ${data.education.length > 0 ? `
+    <!-- Education Section -->
+    <section id="education" class="section">
+        <div class="container">
+            <h2 class="section-title">Education</h2>
+            <div class="timeline">
+                ${data.education.map(edu => `
+                <div class="timeline-item fade-in-up">
+                    <h3>${edu.degree} in ${edu.field}</h3>
+                    <div class="company">${edu.institution}</div>
+                    <div class="date">${edu.startDate} - ${edu.endDate}</div>
+                    ${edu.gpa ? `<p>GPA: ${edu.gpa}</p>` : ''}
+                    ${edu.honors ? `<p>${edu.honors}</p>` : ''}
+                </div>
+                `).join('')}
+            </div>
+        </div>
+    </section>
+    ` : ''}
+
+    <!-- Contact Section -->
+    <section id="contact" class="section contact-section">
+        <div class="container">
+            <h2 class="section-title">Let's Work Together</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                Ready to bring your ideas to life? I'm always excited to work on new projects and collaborate with amazing people.
+            </p>
+            
+            <div class="contact-grid">
+                <div class="contact-item fade-in-up">
+                    <i class="fas fa-envelope"></i>
+                    <h3>Email</h3>
+                    <a href="mailto:${personalInfo.email}">${personalInfo.email}</a>
+                </div>
+                <div class="contact-item fade-in-up">
+                    <i class="fas fa-phone"></i>
+                    <h3>Phone</h3>
+                    <span>${personalInfo.phone}</span>
+                </div>
+                <div class="contact-item fade-in-up">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h3>Location</h3>
+                    <span>${personalInfo.location}</span>
+                </div>
+                ${personalInfo.linkedin ? `
+                <div class="contact-item fade-in-up">
+                    <i class="fab fa-linkedin"></i>
+                    <h3>LinkedIn</h3>
+                    <a href="${personalInfo.linkedin}" target="_blank">Connect with me</a>
+                </div>
+                ` : ''}
+                ${personalInfo.github ? `
+                <div class="contact-item fade-in-up">
+                    <i class="fab fa-github"></i>
+                    <h3>GitHub</h3>
+                    <a href="${personalInfo.github}" target="_blank">View my code</a>
+                </div>
+                ` : ''}
+                ${personalInfo.website ? `
+                <div class="contact-item fade-in-up">
+                    <i class="fas fa-globe"></i>
+                    <h3>Website</h3>
+                    <a href="${personalInfo.website}" target="_blank">Visit my site</a>
+                </div>
+                ` : ''}
+            </div>
+        </div>
+    </section>
 
     <script>
         // Smooth scrolling for navigation links
@@ -954,7 +838,45 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             });
         });
 
-        // Add scroll animations
+        // Active navigation highlighting
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav a[href^="#"]');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (window.pageYOffset >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Skills toggle functionality
+        function showSkills(category) {
+            // Hide all skill sections
+            document.querySelectorAll('[id^="skills-"]').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected category
+            document.getElementById('skills-' + category).classList.remove('hidden');
+            
+            // Update button states
+            document.querySelectorAll('.skill-toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Add fade-in animation on scroll
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
@@ -969,51 +891,21 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             });
         }, observerOptions);
 
-        // Observe all animated elements
-        document.querySelectorAll('.timeline-item, .project-card, .skills-category, .about-content, .contact-content').forEach(el => {
+        document.querySelectorAll('.fade-in-up').forEach(el => {
             el.style.opacity = '0';
             el.style.transform = 'translateY(30px)';
-            el.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+            el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
             observer.observe(el);
         });
 
-        // Add active navigation highlighting
-        window.addEventListener('scroll', () => {
-            const sections = document.querySelectorAll('section[id]');
-            const navLinks = document.querySelectorAll('.nav a[href^="#"]');
-            
-            let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop - 100;
-                if (window.pageYOffset >= sectionTop) {
-                    current = section.getAttribute('id');
-                }
-            });
-
-            navLinks.forEach(link => {
-                link.style.color = '${safeColors.bodyText}';
-                link.style.background = 'transparent';
-                if (link.getAttribute('href') === '#' + current) {
-                    link.style.color = '${safeColors.primaryAccent}';
-                    link.style.background = '${safeColors.primaryAccent}10';
-                }
-            });
-        });
-
-        // Add loading animation
-        window.addEventListener('load', () => {
-            document.body.style.opacity = '1';
-        });
-
-        // Initialize
-        document.body.style.opacity = '0';
-        document.body.style.transition = 'opacity 0.5s ease-in';
+        // Add hidden class style
+        const style = document.createElement('style');
+        style.textContent = '.hidden { display: none !important; }';
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
-  `;
-
-  return baseHTML;
+    `;
 };
 
 export const downloadPortfolioHTML = (data: ResumeData, templateId: string): void => {
