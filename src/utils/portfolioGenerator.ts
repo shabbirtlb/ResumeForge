@@ -2,6 +2,20 @@ import type { ResumeData } from '../types';
 
 export const generatePortfolioHTML = (data: ResumeData, templateId: string): string => {
   const { personalInfo, experience, education, projects, skills, sectionOrder, customization } = data;
+  const portfolioCustomization = customization.portfolio;
+
+  // Safe fallbacks for customization
+  const safeSpacing = portfolioCustomization.spacing || { 
+    sectionSpacing: '4rem', 
+    paragraphSpacing: '1.5rem', 
+    lineHeight: '1.7' 
+  };
+  const safeBorders = portfolioCustomization.borders || { borderRadius: '12px' };
+  const safeLayout = portfolioCustomization.layout || { 
+    heroHeight: '100vh', 
+    cardShadow: '0 10px 25px rgba(0,0,0,0.1)', 
+    animationSpeed: '0.3s' 
+  };
 
   const renderSectionByOrder = (sections: string[]) => {
     return sections.map(sectionId => {
@@ -115,7 +129,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${personalInfo.fullName} - Portfolio</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Georgia:wght@400;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&family=Lato:wght@400;700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Georgia:wght@400;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&family=Lato:wght@400;700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;500;600;700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -124,10 +138,11 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         }
         
         body {
-            font-family: '${customization.portfolio.fonts.body}', sans-serif;
-            line-height: 1.6;
-            color: ${customization.portfolio.colors.bodyText};
-            background-color: ${customization.portfolio.colors.backgroundColor};
+            font-family: '${portfolioCustomization.fonts.bodyText}', sans-serif;
+            line-height: ${safeSpacing.lineHeight};
+            color: ${portfolioCustomization.colors.bodyText};
+            background-color: ${portfolioCustomization.colors.pageBackground};
+            scroll-behavior: smooth;
         }
         
         .container {
@@ -138,92 +153,181 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         
         /* Header */
         .header {
-            background: ${customization.portfolio.colors.heroBackground};
-            color: ${customization.portfolio.colors.headerText};
+            background: ${portfolioCustomization.colors.heroBackground};
+            color: ${portfolioCustomization.colors.mainHeaderText};
             padding: 100px 0;
             text-align: center;
+            min-height: ${safeLayout.heroHeight};
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: ${portfolioCustomization.colors.heroOverlay || 'rgba(0,0,0,0.1)'};
+            z-index: 1;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
         }
         
         .header h1 {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            font-weight: 300;
-            font-family: '${customization.portfolio.fonts.header}', sans-serif;
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            font-family: '${portfolioCustomization.fonts.mainHeader}', sans-serif;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInUp 1s ease-out;
         }
         
-        .header p {
-            font-size: 1.2rem;
+        .header .subtitle {
+            font-size: 1.5rem;
             margin-bottom: 30px;
-            opacity: 0.9;
+            opacity: 0.95;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+        
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+            color: ${portfolioCustomization.colors.contactText};
+            font-family: '${portfolioCustomization.fonts.contactInfo}', sans-serif;
         }
         
         .social-links {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            margin-top: 30px;
+            gap: 25px;
+            margin-top: 40px;
             flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 0.6s both;
         }
         
         .social-links a {
-            color: ${customization.portfolio.colors.headerText};
-            font-size: 1.5rem;
-            transition: transform 0.3s ease;
+            color: ${portfolioCustomization.colors.mainHeaderText};
+            font-size: 2rem;
+            transition: all ${safeLayout.animationSpeed} ease;
+            padding: 15px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
         }
         
         .social-links a:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px) scale(1.1);
+            background: rgba(255,255,255,0.2);
+            box-shadow: ${safeLayout.cardShadow};
         }
         
         /* Navigation */
         .nav {
-            background: ${customization.portfolio.colors.cardBackground};
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: ${portfolioCustomization.colors.navigationBackground || portfolioCustomization.colors.cardBackground};
+            box-shadow: ${safeLayout.cardShadow};
             position: sticky;
             top: 0;
             z-index: 100;
-            border-bottom: 1px solid ${customization.portfolio.colors.borderColor};
+            border-bottom: 1px solid ${portfolioCustomization.colors.borderColor};
+            backdrop-filter: blur(10px);
         }
         
         .nav ul {
             list-style: none;
             display: flex;
             justify-content: center;
-            padding: 20px 0;
+            padding: 25px 0;
             flex-wrap: wrap;
+            gap: 10px;
         }
         
         .nav li {
-            margin: 0 15px;
+            margin: 0 20px;
         }
         
         .nav a {
             text-decoration: none;
-            color: ${customization.portfolio.colors.bodyText};
-            font-weight: 500;
-            transition: color 0.3s ease;
+            color: ${portfolioCustomization.colors.bodyText};
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all ${safeLayout.animationSpeed} ease;
+            padding: 10px 20px;
+            border-radius: ${safeBorders.borderRadius};
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
         }
         
         .nav a:hover {
-            color: ${customization.portfolio.colors.accentColor};
+            color: ${portfolioCustomization.colors.primaryAccent};
+            background: ${portfolioCustomization.colors.primaryAccent}10;
+            transform: translateY(-2px);
+        }
+        
+        .nav a:hover::before {
+            left: 100%;
         }
         
         /* Sections */
         .section {
-            padding: 80px 0;
-            background-color: ${customization.portfolio.colors.sectionBackground};
+            padding: ${safeSpacing.sectionSpacing} 0;
+            position: relative;
         }
         
         .section:nth-child(even) {
-            background: ${customization.portfolio.colors.backgroundColor};
+            background: ${portfolioCustomization.colors.alternateBackground};
         }
         
         .section-title {
             text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 50px;
-            color: ${customization.portfolio.colors.headerText};
-            font-family: '${customization.portfolio.fonts.header}', sans-serif;
+            font-size: 3rem;
+            margin-bottom: 60px;
+            color: ${portfolioCustomization.colors.sectionHeaderText};
+            font-family: '${portfolioCustomization.fonts.sectionHeaders}', sans-serif;
+            font-weight: 700;
+            position: relative;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, ${portfolioCustomization.colors.primaryAccent}, ${portfolioCustomization.colors.secondaryAccent});
+            border-radius: 2px;
         }
         
         /* About */
@@ -231,190 +335,376 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
             max-width: 800px;
             margin: 0 auto;
             text-align: center;
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: ${customization.portfolio.colors.bodyText};
+            font-size: 1.2rem;
+            line-height: ${safeSpacing.lineHeight};
+            color: ${portfolioCustomization.colors.bodyText};
+            padding: 40px;
+            background: ${portfolioCustomization.colors.cardBackground};
+            border-radius: ${safeBorders.borderRadius};
+            box-shadow: ${safeLayout.cardShadow};
+            animation: fadeInUp 0.8s ease-out;
         }
         
         /* Timeline */
         .timeline {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
+            position: relative;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, ${portfolioCustomization.colors.primaryAccent}, ${portfolioCustomization.colors.secondaryAccent});
+            transform: translateX(-50%);
+            border-radius: 2px;
         }
         
         .timeline-item {
-            background: ${customization.portfolio.colors.cardBackground};
-            padding: 30px;
-            margin-bottom: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-left: 4px solid ${customization.portfolio.colors.accentColor};
+            background: ${portfolioCustomization.colors.cardBackground};
+            padding: 40px;
+            margin-bottom: 40px;
+            border-radius: ${safeBorders.borderRadius};
+            box-shadow: ${safeLayout.cardShadow};
+            border-left: 6px solid ${portfolioCustomization.colors.primaryAccent};
+            position: relative;
+            margin-left: 60px;
+            animation: slideInLeft 0.8s ease-out;
+            transition: all ${safeLayout.animationSpeed} ease;
+        }
+        
+        .timeline-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background: ${portfolioCustomization.colors.primaryAccent};
+            border-radius: 50%;
+            border: 4px solid ${portfolioCustomization.colors.cardBackground};
+            box-shadow: 0 0 0 4px ${portfolioCustomization.colors.primaryAccent}30;
         }
         
         .timeline-item h3 {
-            color: ${customization.portfolio.colors.accentColor};
-            margin-bottom: 5px;
-            font-family: '${customization.portfolio.fonts.header}', sans-serif;
+            color: ${portfolioCustomization.colors.subHeaderText};
+            margin-bottom: 8px;
+            font-family: '${portfolioCustomization.fonts.subHeaders}', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
         }
         
         .timeline-item .company {
-            color: ${customization.portfolio.colors.bodyText};
+            color: ${portfolioCustomization.colors.primaryAccent};
             font-style: italic;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            font-weight: 500;
+            font-size: 1.1rem;
         }
         
         .timeline-item .date {
-            color: ${customization.portfolio.colors.bodyText};
-            opacity: 0.7;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
+            color: ${portfolioCustomization.colors.dateText};
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            font-family: '${portfolioCustomization.fonts.dates}', sans-serif;
+            font-weight: 500;
+        }
+        
+        .timeline-item p {
+            line-height: ${safeSpacing.lineHeight};
+            color: ${portfolioCustomization.colors.bodyText};
         }
         
         /* Projects */
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-            margin-top: 50px;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
         }
         
         .project-card {
-            background: ${customization.portfolio.colors.cardBackground};
-            border-radius: 10px;
+            background: ${portfolioCustomization.colors.projectCardBackground || portfolioCustomization.colors.cardBackground};
+            border-radius: ${safeBorders.borderRadius};
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-            border: 1px solid ${customization.portfolio.colors.borderColor};
+            box-shadow: ${safeLayout.cardShadow};
+            transition: all ${safeLayout.animationSpeed} ease;
+            border: 1px solid ${portfolioCustomization.colors.borderColor};
+            animation: fadeInUp 0.8s ease-out;
         }
         
         .project-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
         }
         
         .project-image {
-            height: 200px;
-            background: ${customization.portfolio.colors.accentColor};
+            height: 250px;
+            background: linear-gradient(135deg, ${portfolioCustomization.colors.primaryAccent}, ${portfolioCustomization.colors.secondaryAccent});
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 3rem;
+            font-size: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .project-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        
+        .project-card:hover .project-image::before {
+            transform: translateX(100%);
         }
         
         .project-content {
-            padding: 25px;
+            padding: 30px;
         }
         
         .project-content h3 {
-            margin-bottom: 10px;
-            color: ${customization.portfolio.colors.headerText};
-            font-family: '${customization.portfolio.fonts.header}', sans-serif;
+            margin-bottom: 15px;
+            color: ${portfolioCustomization.colors.subHeaderText};
+            font-family: '${portfolioCustomization.fonts.subHeaders}', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
         }
         
         .project-content p {
-            color: ${customization.portfolio.colors.bodyText};
-            margin-bottom: 15px;
+            color: ${portfolioCustomization.colors.bodyText};
+            margin-bottom: 20px;
+            line-height: ${safeSpacing.lineHeight};
         }
         
         .tech-tags {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 25px;
         }
         
         .tech-tag {
-            background: ${customization.portfolio.colors.accentColor}20;
-            color: ${customization.portfolio.colors.accentColor};
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            background: ${portfolioCustomization.colors.skillTagBackground || portfolioCustomization.colors.primaryAccent + '20'};
+            color: ${portfolioCustomization.colors.primaryAccent};
+            padding: 6px 15px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid ${portfolioCustomization.colors.primaryAccent}30;
+            transition: all ${safeLayout.animationSpeed} ease;
+        }
+        
+        .tech-tag:hover {
+            background: ${portfolioCustomization.colors.primaryAccent};
+            color: white;
+            transform: translateY(-2px);
         }
         
         .project-links {
             display: flex;
-            gap: 15px;
+            gap: 20px;
         }
         
         .project-links a {
-            color: ${customization.portfolio.colors.accentColor};
+            color: ${portfolioCustomization.colors.linkText};
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 2px solid ${portfolioCustomization.colors.linkText};
+            border-radius: ${safeBorders.borderRadius};
+            transition: all ${safeLayout.animationSpeed} ease;
+        }
+        
+        .project-links a:hover {
+            background: ${portfolioCustomization.colors.linkText};
+            color: white;
+            transform: translateY(-2px);
         }
         
         /* Skills */
         .skills-container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
         }
         
         .skills-category {
-            margin-bottom: 40px;
+            background: ${portfolioCustomization.colors.cardBackground};
+            padding: 30px;
+            border-radius: ${safeBorders.borderRadius};
+            box-shadow: ${safeLayout.cardShadow};
+            border-top: 4px solid ${portfolioCustomization.colors.primaryAccent};
+            animation: fadeInUp 0.8s ease-out;
+            transition: all ${safeLayout.animationSpeed} ease;
+        }
+        
+        .skills-category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
         
         .skills-category h3 {
-            margin-bottom: 20px;
-            color: ${customization.portfolio.colors.headerText};
-            font-family: '${customization.portfolio.fonts.header}', sans-serif;
+            margin-bottom: 25px;
+            color: ${portfolioCustomization.colors.sectionHeaderText};
+            font-family: '${portfolioCustomization.fonts.sectionHeaders}', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-align: center;
         }
         
         .skills-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 12px;
         }
         
         .skill-item {
-            background: ${customization.portfolio.colors.cardBackground};
-            padding: 15px 25px;
-            border-radius: 25px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            background: ${portfolioCustomization.colors.skillTagBackground || portfolioCustomization.colors.alternateBackground};
+            padding: 12px 20px;
+            border-radius: 30px;
             font-weight: 500;
-            color: ${customization.portfolio.colors.bodyText};
-            border: 1px solid ${customization.portfolio.colors.borderColor};
+            color: ${portfolioCustomization.colors.bodyText};
+            border: 1px solid ${portfolioCustomization.colors.borderColor};
+            transition: all ${safeLayout.animationSpeed} ease;
+            cursor: default;
+        }
+        
+        .skill-item:hover {
+            background: ${portfolioCustomization.colors.primaryAccent};
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         
         /* Contact */
-        .contact-info {
+        .contact-section {
+            background: ${portfolioCustomization.colors.sectionBackground};
+            padding: ${safeSpacing.sectionSpacing} 0;
+        }
+        
+        .contact-content {
             text-align: center;
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto;
+            background: ${portfolioCustomization.colors.cardBackground};
+            padding: 50px;
+            border-radius: ${safeBorders.borderRadius};
+            box-shadow: ${safeLayout.cardShadow};
+            animation: fadeInUp 0.8s ease-out;
         }
         
-        .contact-item {
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-            color: ${customization.portfolio.colors.bodyText};
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
         }
         
-        .contact-item i {
-            color: ${customization.portfolio.colors.accentColor};
-            margin-right: 10px;
-            width: 20px;
+        .contact-item-large {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            padding: 25px;
+            background: ${portfolioCustomization.colors.alternateBackground};
+            border-radius: ${safeBorders.borderRadius};
+            transition: all ${safeLayout.animationSpeed} ease;
         }
         
-        .contact-item a {
-            color: ${customization.portfolio.colors.accentColor};
+        .contact-item-large:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .contact-item-large i {
+            color: ${portfolioCustomization.colors.primaryAccent};
+            font-size: 2rem;
+        }
+        
+        .contact-item-large a {
+            color: ${portfolioCustomization.colors.linkText};
             text-decoration: none;
+            font-weight: 500;
+            transition: color ${safeLayout.animationSpeed} ease;
+        }
+        
+        .contact-item-large a:hover {
+            color: ${portfolioCustomization.colors.primaryAccent};
         }
         
         /* Footer */
         .footer {
-            background: ${customization.portfolio.colors.headerText};
+            background: ${portfolioCustomization.colors.footerBackground || portfolioCustomization.colors.sectionHeaderText};
             color: white;
             text-align: center;
-            padding: 30px 0;
+            padding: 40px 0;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
         
         /* Responsive */
         @media (max-width: 768px) {
             .header h1 {
-                font-size: 2rem;
+                font-size: 2.5rem;
+            }
+            
+            .header .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .contact-info {
+                flex-direction: column;
+                gap: 15px;
             }
             
             .nav ul {
                 flex-direction: column;
                 gap: 10px;
+                padding: 20px 0;
             }
             
             .nav li {
@@ -425,12 +715,65 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
                 grid-template-columns: 1fr;
             }
             
-            .social-links {
-                flex-wrap: wrap;
+            .timeline::before {
+                left: 20px;
+            }
+            
+            .timeline-item {
+                margin-left: 50px;
+            }
+            
+            .timeline-item::before {
+                left: -45px;
             }
             
             .section {
-                padding: 40px 0;
+                padding: 60px 0;
+            }
+            
+            .section-title {
+                font-size: 2.2rem;
+            }
+            
+            .skills-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .header {
+                padding: 60px 0;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .social-links a {
+                font-size: 1.5rem;
+                padding: 12px;
+            }
+            
+            .timeline-item {
+                margin-left: 0;
+                border-left: none;
+                border-top: 4px solid ${portfolioCustomization.colors.primaryAccent};
+            }
+            
+            .timeline::before {
+                display: none;
+            }
+            
+            .timeline-item::before {
+                display: none;
             }
         }
     </style>
@@ -439,25 +782,30 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
     <!-- Header -->
     <header class="header">
         <div class="container">
-            <h1>${personalInfo.fullName}</h1>
-            <p>${personalInfo.summary || 'Professional Portfolio'}</p>
-            <div class="contact-item">
-                <i class="fas fa-envelope"></i>
-                ${personalInfo.email}
-            </div>
-            <div class="contact-item">
-                <i class="fas fa-phone"></i>
-                ${personalInfo.phone}
-            </div>
-            <div class="contact-item">
-                <i class="fas fa-map-marker-alt"></i>
-                ${personalInfo.location}
-            </div>
-            
-            <div class="social-links">
-                ${personalInfo.website ? `<a href="${personalInfo.website}" target="_blank"><i class="fas fa-globe"></i></a>` : ''}
-                ${personalInfo.linkedin ? `<a href="${personalInfo.linkedin}" target="_blank"><i class="fab fa-linkedin"></i></a>` : ''}
-                ${personalInfo.github ? `<a href="${personalInfo.github}" target="_blank"><i class="fab fa-github"></i></a>` : ''}
+            <div class="header-content">
+                <h1>${personalInfo.fullName}</h1>
+                <p class="subtitle">${personalInfo.summary || 'Professional Portfolio'}</p>
+                
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        ${personalInfo.email}
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        ${personalInfo.phone}
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        ${personalInfo.location}
+                    </div>
+                </div>
+                
+                <div class="social-links">
+                    ${personalInfo.website ? `<a href="${personalInfo.website}" target="_blank" title="Website"><i class="fas fa-globe"></i></a>` : ''}
+                    ${personalInfo.linkedin ? `<a href="${personalInfo.linkedin}" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>` : ''}
+                    ${personalInfo.github ? `<a href="${personalInfo.github}" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>` : ''}
+                </div>
             </div>
         </div>
     </header>
@@ -488,21 +836,38 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
     ${renderSectionByOrder(sectionOrder.portfolio)}
 
     <!-- Contact Section -->
-    <section id="contact" class="section">
+    <section id="contact" class="contact-section">
         <div class="container">
             <h2 class="section-title">Get In Touch</h2>
-            <div class="contact-info">
-                <div class="contact-item">
-                    <i class="fas fa-envelope"></i>
-                    <a href="mailto:${personalInfo.email}">${personalInfo.email}</a>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-phone"></i>
-                    ${personalInfo.phone}
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    ${personalInfo.location}
+            <div class="contact-content">
+                <p style="font-size: 1.2rem; margin-bottom: 30px; color: ${portfolioCustomization.colors.bodyText};">
+                    Let's connect and discuss opportunities
+                </p>
+                <div class="contact-grid">
+                    <div class="contact-item-large">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <strong>Email</strong>
+                            <br>
+                            <a href="mailto:${personalInfo.email}">${personalInfo.email}</a>
+                        </div>
+                    </div>
+                    <div class="contact-item-large">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <strong>Phone</strong>
+                            <br>
+                            <a href="tel:${personalInfo.phone}">${personalInfo.phone}</a>
+                        </div>
+                    </div>
+                    <div class="contact-item-large">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <strong>Location</strong>
+                            <br>
+                            ${personalInfo.location}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -512,6 +877,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
     <footer class="footer">
         <div class="container">
             <p>&copy; ${new Date().getFullYear()} ${personalInfo.fullName}. All rights reserved.</p>
+            <p style="margin-top: 10px; opacity: 0.8;">Built with ResumeForge</p>
         </div>
     </footer>
 
@@ -523,11 +889,67 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
                     target.scrollIntoView({
-                        behavior: 'smooth'
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 }
             });
         });
+
+        // Add scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animated elements
+        document.querySelectorAll('.timeline-item, .project-card, .skills-category, .about-content, .contact-content').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+            observer.observe(el);
+        });
+
+        // Add active navigation highlighting
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav a[href^="#"]');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (window.pageYOffset >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.style.color = '${portfolioCustomization.colors.bodyText}';
+                link.style.background = 'transparent';
+                if (link.getAttribute('href') === '#' + current) {
+                    link.style.color = '${portfolioCustomization.colors.primaryAccent}';
+                    link.style.background = '${portfolioCustomization.colors.primaryAccent}10';
+                }
+            });
+        });
+
+        // Add loading animation
+        window.addEventListener('load', () => {
+            document.body.style.opacity = '1';
+        });
+
+        // Initialize
+        document.body.style.opacity = '0';
+        document.body.style.transition = 'opacity 0.5s ease-in';
     </script>
 </body>
 </html>
