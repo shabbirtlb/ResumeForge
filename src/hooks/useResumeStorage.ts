@@ -22,13 +22,16 @@ export const useResumeStorage = () => {
 
       if (error) {
         console.error('Error saving resume:', error);
-        throw new Error('Failed to save resume');
+        throw new Error(`Failed to save resume: ${error.message}`);
       }
 
       return resume.id;
     } catch (error) {
       console.error('Error saving resume:', error);
-      throw error;
+      if (error instanceof Error) {
+        throw new Error(`Failed to save resume: ${error.message}`);
+      }
+      throw new Error('Failed to save resume: Unknown error');
     }
   };
 
@@ -47,11 +50,14 @@ export const useResumeStorage = () => {
 
       if (error) {
         console.error('Error updating resume:', error);
-        throw new Error('Failed to update resume');
+        throw new Error(`Failed to update resume: ${error.message}`);
       }
     } catch (error) {
       console.error('Error updating resume:', error);
-      throw error;
+      if (error instanceof Error) {
+        throw new Error(`Failed to update resume: ${error.message}`);
+      }
+      throw new Error('Failed to update resume: Unknown error');
     }
   };
 
@@ -59,6 +65,18 @@ export const useResumeStorage = () => {
     if (!user) return [];
     
     try {
+      // Test Supabase connection first
+      const { data: connectionTest, error: connectionError } = await supabase
+        .from('resumes')
+        .select('count')
+        .eq('user_id', user.id)
+        .limit(1);
+
+      if (connectionError) {
+        console.error('Supabase connection error:', connectionError);
+        throw new Error(`Database connection failed: ${connectionError.message}`);
+      }
+
       const { data: resumes, error } = await supabase
         .from('resumes')
         .select('*')
@@ -67,7 +85,7 @@ export const useResumeStorage = () => {
 
       if (error) {
         console.error('Error fetching resumes:', error);
-        return [];
+        throw new Error(`Failed to fetch resumes: ${error.message}`);
       }
 
       return resumes.map(resume => ({
@@ -81,7 +99,14 @@ export const useResumeStorage = () => {
       }));
     } catch (error) {
       console.error('Error fetching resumes:', error);
-      return [];
+      if (error instanceof Error) {
+        // Check if it's a network error
+        if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+          throw new Error('Network error: Unable to connect to the database. Please check your internet connection and try again.');
+        }
+        throw error;
+      }
+      throw new Error('Failed to fetch resumes: Unknown error');
     }
   };
 
@@ -97,11 +122,14 @@ export const useResumeStorage = () => {
 
       if (error) {
         console.error('Error deleting resume:', error);
-        throw new Error('Failed to delete resume');
+        throw new Error(`Failed to delete resume: ${error.message}`);
       }
     } catch (error) {
       console.error('Error deleting resume:', error);
-      throw error;
+      if (error instanceof Error) {
+        throw new Error(`Failed to delete resume: ${error.message}`);
+      }
+      throw new Error('Failed to delete resume: Unknown error');
     }
   };
 
@@ -118,7 +146,10 @@ export const useResumeStorage = () => {
 
       if (error) {
         console.error('Error fetching resume:', error);
-        return null;
+        if (error.code === 'PGRST116') {
+          return null; // Resume not found
+        }
+        throw new Error(`Failed to fetch resume: ${error.message}`);
       }
 
       return {
@@ -132,7 +163,10 @@ export const useResumeStorage = () => {
       };
     } catch (error) {
       console.error('Error fetching resume:', error);
-      return null;
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Failed to fetch resume: Unknown error');
     }
   };
 
@@ -153,13 +187,16 @@ export const useResumeStorage = () => {
 
       if (error) {
         console.error('Error duplicating resume:', error);
-        throw new Error('Failed to duplicate resume');
+        throw new Error(`Failed to duplicate resume: ${error.message}`);
       }
 
       return newResume.id;
     } catch (error) {
       console.error('Error duplicating resume:', error);
-      throw error;
+      if (error instanceof Error) {
+        throw new Error(`Failed to duplicate resume: ${error.message}`);
+      }
+      throw new Error('Failed to duplicate resume: Unknown error');
     }
   };
 

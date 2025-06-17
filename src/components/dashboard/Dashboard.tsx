@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, FileText, Edit, Trash2, Download, Search, Filter, Calendar, Copy, Globe } from 'lucide-react';
+import { Plus, FileText, Edit, Trash2, Download, Search, Filter, Calendar, Copy, Globe, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResumeStorage } from '../../hooks/useResumeStorage';
 import { generateResumePDF } from '../../utils/pdfGenerator';
@@ -18,6 +18,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterBy, setFilterBy] = useState<'all' | 'recent' | 'templates'>('all');
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [downloadingPDF, setDownloadingPDF] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,10 +30,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
     
     try {
       setIsLoading(true);
+      setError(null);
       const resumes = await getSavedResumes();
       setSavedResumes(resumes);
     } catch (error) {
       console.error('Error loading resumes:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load resumes';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -46,7 +50,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
       setSavedResumes(prev => prev.filter(resume => resume.id !== id));
     } catch (error) {
       console.error('Error deleting resume:', error);
-      alert('Failed to delete resume. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete resume';
+      alert(`Error: ${errorMessage}`);
     }
   };
 
@@ -56,7 +61,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
       await loadSavedResumes(); // Refresh the list
     } catch (error) {
       console.error('Error duplicating resume:', error);
-      alert('Failed to duplicate resume. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to duplicate resume';
+      alert(`Error: ${errorMessage}`);
     }
   };
 
@@ -110,6 +116,34 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your resumes...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <div className="bg-white/90 backdrop-blur-md rounded-xl p-8 border border-red-200 shadow-lg max-w-md mx-4">
+          <div className="flex items-center space-x-3 mb-4">
+            <AlertCircle className="w-8 h-8 text-red-500" />
+            <h2 className="text-xl font-semibold text-gray-900">Connection Error</h2>
+          </div>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <div className="space-y-3">
+            <button
+              onClick={loadSavedResumes}
+              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={onCreateNew}
+              className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+            >
+              Create New Resume (Offline)
+            </button>
+          </div>
         </div>
       </div>
     );
