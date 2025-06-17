@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Briefcase, GraduationCap, Code, Award, Eye, Zap, ArrowUpDown, Palette, ArrowLeft } from 'lucide-react';
+import { User, Briefcase, GraduationCap, Code, Award, Eye, Zap, ArrowUpDown, Palette, ArrowLeft, Paintbrush } from 'lucide-react';
 import type { FormStep } from '../types';
 
 interface HeaderProps {
@@ -21,6 +21,10 @@ const steps: { key: FormStep; label: string; icon: React.ComponentType<any> }[] 
 
 export const Header: React.FC<HeaderProps> = ({ currentStep, onStepChange, onBackToDashboard }) => {
   const currentIndex = steps.findIndex(step => step.key === currentStep);
+
+  const handleSkipToStyling = () => {
+    onStepChange('customization');
+  };
 
   return (
     <header className="bg-white/90 backdrop-blur-md border-b border-gray-200/50 sticky top-0 z-50">
@@ -46,6 +50,19 @@ export const Header: React.FC<HeaderProps> = ({ currentStep, onStepChange, onBac
               <p className="text-sm text-gray-600">Automated Resume & Portfolio Builder</p>
             </div>
           </div>
+
+          {/* Skip to Styling Button - Only show if not already on customization or preview */}
+          {currentStep !== 'customization' && currentStep !== 'preview' && (
+            <button
+              onClick={handleSkipToStyling}
+              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+              title="Skip to styling and customization"
+            >
+              <Paintbrush className="w-4 h-4" />
+              <span className="hidden sm:inline">Skip to Styling</span>
+              <span className="sm:hidden">Style</span>
+            </button>
+          )}
         </div>
 
         {/* Progress Steps */}
