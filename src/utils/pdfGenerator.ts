@@ -13,20 +13,20 @@ export const generateResumePDF = async (resumeData: ResumeData, templateId: stri
     pdfContainer.style.top = '-10000px';
     pdfContainer.style.left = '-10000px';
     pdfContainer.style.width = '794px'; // A4 width in pixels at 96 DPI
-    pdfContainer.style.minHeight = '1123px'; // A4 height in pixels at 96 DPI
     pdfContainer.style.backgroundColor = 'white';
     pdfContainer.style.padding = '0';
     pdfContainer.style.margin = '0';
-    pdfContainer.style.fontFamily = 'Arial, sans-serif';
-    pdfContainer.style.fontSize = '14px';
-    pdfContainer.style.lineHeight = '1.4';
-    pdfContainer.style.color = '#000000';
+    pdfContainer.style.overflow = 'visible';
+    pdfContainer.style.zIndex = '-1000';
     
     document.body.appendChild(pdfContainer);
 
-    // Wait for any fonts to load
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Wait for fonts and rendering
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
+    // Calculate the actual content height
+    const contentHeight = Math.max(pdfContainer.scrollHeight, pdfContainer.offsetHeight, 1123);
+    
     // Generate canvas from the container
     const canvas = await html2canvas(pdfContainer, {
       scale: 2,
@@ -34,9 +34,19 @@ export const generateResumePDF = async (resumeData: ResumeData, templateId: stri
       allowTaint: true,
       backgroundColor: '#ffffff',
       width: 794,
-      height: Math.max(1123, pdfContainer.scrollHeight),
+      height: contentHeight,
       logging: false,
-      removeContainer: false
+      removeContainer: false,
+      onclone: (clonedDoc) => {
+        // Ensure all styles are properly applied in the cloned document
+        const clonedContainer = clonedDoc.querySelector('div');
+        if (clonedContainer) {
+          clonedContainer.style.width = '794px';
+          clonedContainer.style.backgroundColor = 'white';
+          clonedContainer.style.padding = '0';
+          clonedContainer.style.margin = '0';
+        }
+      }
     });
 
     // Create PDF
@@ -90,13 +100,42 @@ const generatePDFHTML = (data: ResumeData): string => {
   const { personalInfo, experience, education, projects, skills, sectionOrder, customization } = data;
   const resumeCustomization = customization.resume;
   
-  // Use safe fallbacks
+  // Use safe fallbacks for customization
   const safeSpacing = resumeCustomization.spacing || { 
     sectionSpacing: '24px', 
     paragraphSpacing: '12px', 
     lineHeight: '1.4' 
   };
   const safeBorders = resumeCustomization.borders || { borderRadius: '6px' };
+  const safeFonts = resumeCustomization.fonts || {
+    mainHeader: 'Arial',
+    sectionHeaders: 'Arial',
+    subHeaders: 'Arial',
+    bodyText: 'Arial',
+    contactInfo: 'Arial',
+    dates: 'Arial'
+  };
+  const safeColors = resumeCustomization.colors || {
+    mainHeaderText: '#2c3e50',
+    sectionHeaderText: '#2c3e50',
+    subHeaderText: '#34495e',
+    bodyText: '#2c3e50',
+    contactText: '#7f8c8d',
+    dateText: '#95a5a6',
+    linkText: '#3498db',
+    pageBackground: '#ffffff',
+    headerBackground: '#f8f9fa',
+    sectionBackground: '#f8f9fa',
+    cardBackground: '#ffffff',
+    alternateBackground: '#f8fafc',
+    primaryAccent: '#3498db',
+    secondaryAccent: '#2980b9',
+    borderColor: '#e9ecef',
+    dividerColor: '#dee2e6',
+    shadowColor: '#00000010',
+    hoverColor: '#2980b9',
+    activeColor: '#1f4e79'
+  };
   
   const renderSectionByOrder = (sections: string[]) => {
     return sections.map(sectionId => {
@@ -200,6 +239,8 @@ const generatePDFHTML = (data: ResumeData): string => {
 
   return `
     <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Georgia:wght@400;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&family=Lato:wght@400;700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;500;600;700&family=Source+Sans+Pro:wght@400;600;700&display=swap');
+      
       * {
         margin: 0;
         padding: 0;
@@ -207,75 +248,84 @@ const generatePDFHTML = (data: ResumeData): string => {
       }
       
       body {
-        font-family: 'Arial', sans-serif;
+        font-family: '${safeFonts.bodyText}', Arial, sans-serif;
         font-size: 14px;
-        line-height: 1.4;
-        color: #333333;
-        background: white;
+        line-height: ${safeSpacing.lineHeight};
+        color: ${safeColors.bodyText};
+        background: ${safeColors.pageBackground};
       }
       
       .pdf-container {
         width: 794px;
         min-height: 1123px;
         padding: 40px;
-        background: white;
+        background: ${safeColors.pageBackground};
         margin: 0;
+        box-sizing: border-box;
       }
       
       .header {
         text-align: center;
         margin-bottom: 30px;
         padding: 25px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        border: 1px solid #e9ecef;
+        background: ${safeColors.headerBackground};
+        border-radius: ${safeBorders.borderRadius};
+        border: 1px solid ${safeColors.borderColor};
       }
       
       .name {
         font-size: 28px;
         font-weight: bold;
-        color: #2c3e50;
+        color: ${safeColors.mainHeaderText};
         margin-bottom: 8px;
         letter-spacing: 1px;
+        font-family: '${safeFonts.mainHeader}', Arial, sans-serif;
       }
       
       .contact-info {
         font-size: 13px;
-        color: #555555;
+        color: ${safeColors.contactText};
         margin-bottom: 15px;
         line-height: 1.3;
+        font-family: '${safeFonts.contactInfo}', Arial, sans-serif;
       }
       
       .summary {
         font-size: 14px;
-        color: #444444;
-        line-height: 1.5;
+        color: ${safeColors.bodyText};
+        line-height: ${safeSpacing.lineHeight};
         max-width: 600px;
         margin: 0 auto;
         text-align: center;
+        font-family: '${safeFonts.bodyText}', Arial, sans-serif;
       }
       
       .section {
-        margin-bottom: 25px;
+        margin-bottom: ${safeSpacing.sectionSpacing};
         page-break-inside: avoid;
+        background: ${safeColors.sectionBackground};
+        padding: 20px;
+        border-radius: ${safeBorders.borderRadius};
+        border: 1px solid ${safeColors.borderColor};
       }
       
       .section-title {
         font-size: 16px;
         font-weight: bold;
-        color: #2c3e50;
+        color: ${safeColors.sectionHeaderText};
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        border-bottom: 2px solid #3498db;
+        border-bottom: 2px solid ${safeColors.primaryAccent};
         padding-bottom: 6px;
         margin-bottom: 18px;
+        font-family: '${safeFonts.sectionHeaders}', Arial, sans-serif;
       }
       
       .experience-item,
       .education-item {
         margin-bottom: 20px;
         padding-bottom: 15px;
-        border-bottom: 1px solid #e9ecef;
+        border-bottom: 1px solid ${safeColors.dividerColor};
       }
       
       .experience-item:last-child,
@@ -307,29 +357,33 @@ const generatePDFHTML = (data: ResumeData): string => {
       .degree {
         font-size: 15px;
         font-weight: bold;
-        color: #2c3e50;
+        color: ${safeColors.subHeaderText};
         margin-bottom: 3px;
+        font-family: '${safeFonts.subHeaders}', Arial, sans-serif;
       }
       
       .company,
       .institution {
         font-size: 13px;
-        color: #7f8c8d;
+        color: ${safeColors.bodyText};
         font-style: italic;
         margin-bottom: 2px;
+        font-family: '${safeFonts.bodyText}', Arial, sans-serif;
       }
       
       .date {
         font-size: 12px;
-        color: #95a5a6;
+        color: ${safeColors.dateText};
         font-weight: 500;
+        font-family: '${safeFonts.dates}', Arial, sans-serif;
       }
       
       .description {
         font-size: 13px;
-        color: #444444;
-        line-height: 1.4;
+        color: ${safeColors.bodyText};
+        line-height: ${safeSpacing.lineHeight};
         margin-top: 8px;
+        font-family: '${safeFonts.bodyText}', Arial, sans-serif;
       }
       
       .achievements {
@@ -339,16 +393,18 @@ const generatePDFHTML = (data: ResumeData): string => {
       
       .achievements li {
         font-size: 13px;
-        color: #444444;
+        color: ${safeColors.bodyText};
         margin-bottom: 3px;
         line-height: 1.3;
+        font-family: '${safeFonts.bodyText}', Arial, sans-serif;
       }
       
       .gpa,
       .honors {
         font-size: 12px;
-        color: #555555;
+        color: ${safeColors.bodyText};
         margin-top: 2px;
+        font-family: '${safeFonts.bodyText}', Arial, sans-serif;
       }
       
       .projects-grid {
@@ -358,35 +414,39 @@ const generatePDFHTML = (data: ResumeData): string => {
       }
       
       .project-item {
-        background: #f8f9fa;
+        background: ${safeColors.cardBackground};
         padding: 15px;
-        border-radius: 6px;
-        border: 1px solid #e9ecef;
+        border-radius: ${safeBorders.borderRadius};
+        border: 1px solid ${safeColors.borderColor};
       }
       
       .project-name {
         font-size: 14px;
         font-weight: bold;
-        color: #2c3e50;
+        color: ${safeColors.subHeaderText};
         margin-bottom: 6px;
+        font-family: '${safeFonts.subHeaders}', Arial, sans-serif;
       }
       
       .project-description {
         font-size: 12px;
-        color: #444444;
+        color: ${safeColors.bodyText};
         line-height: 1.3;
         margin-bottom: 8px;
+        font-family: '${safeFonts.bodyText}', Arial, sans-serif;
       }
       
       .project-tech {
         font-size: 11px;
-        color: #555555;
+        color: ${safeColors.bodyText};
         margin-bottom: 6px;
+        font-family: '${safeFonts.bodyText}', Arial, sans-serif;
       }
       
       .project-links {
         font-size: 10px;
-        color: #3498db;
+        color: ${safeColors.linkText};
+        font-family: '${safeFonts.bodyText}', Arial, sans-serif;
       }
       
       .skills-container {
@@ -402,8 +462,9 @@ const generatePDFHTML = (data: ResumeData): string => {
       .skills-category-title {
         font-size: 13px;
         font-weight: bold;
-        color: #2c3e50;
+        color: ${safeColors.sectionHeaderText};
         margin-bottom: 8px;
+        font-family: '${safeFonts.sectionHeaders}', Arial, sans-serif;
       }
       
       .skills-list {
@@ -413,13 +474,14 @@ const generatePDFHTML = (data: ResumeData): string => {
       }
       
       .skill-tag {
-        background: #ecf0f1;
-        color: #2c3e50;
+        background: ${safeColors.primaryAccent}20;
+        color: ${safeColors.primaryAccent};
         padding: 4px 10px;
         border-radius: 12px;
         font-size: 11px;
         font-weight: 500;
-        border: 1px solid #bdc3c7;
+        border: 1px solid ${safeColors.primaryAccent}40;
+        font-family: '${safeFonts.bodyText}', Arial, sans-serif;
       }
       
       @media print {
