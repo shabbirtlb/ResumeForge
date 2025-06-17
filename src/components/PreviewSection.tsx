@@ -365,6 +365,335 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
     });
   };
 
+  // Portfolio preview component
+  const renderPortfolioPreview = () => {
+    const portfolioColors = data.customization.portfolio.colors;
+    const portfolioFonts = data.customization.portfolio.fonts;
+    const portfolioLayout = data.customization.portfolio.layout || { heroHeight: '80vh', animationSpeed: '0.3s' };
+    const safeBorders = data.customization.portfolio.borders || { borderRadius: '8px' };
+    const safeSpacing = data.customization.portfolio.spacing || { sectionSpacing: '2rem', paragraphSpacing: '1rem', lineHeight: '1.6' };
+    
+    return (
+      <div className="bg-white rounded-lg border border-gray-300 overflow-hidden max-h-[600px] overflow-y-auto">
+        {/* Hero Section */}
+        <div 
+          className="relative p-8 text-center text-white min-h-[300px] flex flex-col justify-center"
+          style={{ 
+            background: portfolioColors.heroBackground || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            fontFamily: portfolioFonts.mainHeader
+          }}
+        >
+          {/* Animated Background Elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-10 left-10 w-4 h-4 bg-white/20 rounded-full animate-pulse"></div>
+            <div className="absolute top-20 right-16 w-6 h-6 bg-white/10 rounded-full animate-bounce"></div>
+            <div className="absolute bottom-16 left-20 w-3 h-3 bg-white/30 rounded-full animate-ping"></div>
+            <div className="absolute bottom-10 right-10 w-5 h-5 bg-white/15 rounded-full animate-pulse"></div>
+          </div>
+          
+          <div className="relative z-10">
+            <h1 
+              className="text-4xl font-bold mb-4"
+              style={{ 
+                color: portfolioColors.mainHeaderText || '#ffffff',
+                fontFamily: portfolioFonts.mainHeader
+              }}
+            >
+              {data.personalInfo.fullName || 'John Doe'}
+            </h1>
+            <p className="text-xl opacity-90 mb-6">
+              {data.personalInfo.summary || 'Full Stack Developer & Creative Problem Solver'}
+            </p>
+            
+            {/* Contact Info */}
+            <div className="flex flex-wrap justify-center gap-4 text-sm mb-6 opacity-90">
+              <span>{data.personalInfo.email}</span>
+              <span>•</span>
+              <span>{data.personalInfo.phone}</span>
+              <span>•</span>
+              <span>{data.personalInfo.location}</span>
+            </div>
+            
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button 
+                className="px-8 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg hover:bg-white/30 transition-all duration-300 transform hover:scale-105"
+                style={{ color: portfolioColors.mainHeaderText || '#ffffff' }}
+              >
+                View My Work
+              </button>
+              <button 
+                className="px-8 py-3 bg-white text-gray-900 rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
+              >
+                Get In Touch
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div 
+          className="sticky top-0 z-20 backdrop-blur-md border-b"
+          style={{ 
+            backgroundColor: portfolioColors.navigationBackground || '#ffffff',
+            borderColor: portfolioColors.borderColor
+          }}
+        >
+          <div className="flex justify-center space-x-8 py-4 text-sm font-medium">
+            {['About', 'Experience', 'Projects', 'Skills', 'Contact'].map((item) => (
+              <a 
+                key={item}
+                href="#"
+                className="hover:scale-105 transition-transform duration-200"
+                style={{ 
+                  color: portfolioColors.bodyText,
+                  fontFamily: portfolioFonts.bodyText
+                }}
+              >
+                {item}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* About Section */}
+        <div 
+          className="p-8"
+          style={{ backgroundColor: portfolioColors.pageBackground }}
+        >
+          <h2 
+            className="text-2xl font-bold text-center mb-6"
+            style={{ 
+              color: portfolioColors.sectionHeaderText,
+              fontFamily: portfolioFonts.sectionHeaders
+            }}
+          >
+            About Me
+          </h2>
+          <div 
+            className="max-w-3xl mx-auto text-center"
+            style={{ 
+              color: portfolioColors.bodyText,
+              fontFamily: portfolioFonts.bodyText,
+              lineHeight: safeSpacing.lineHeight
+            }}
+          >
+            <p>
+              {data.personalInfo.summary || 'Passionate developer with expertise in modern web technologies and a commitment to creating exceptional user experiences. I love turning complex problems into simple, beautiful solutions.'}
+            </p>
+          </div>
+        </div>
+
+        {/* Featured Projects Section */}
+        <div 
+          className="p-8"
+          style={{ backgroundColor: portfolioColors.alternateBackground }}
+        >
+          <h2 
+            className="text-2xl font-bold text-center mb-8"
+            style={{ 
+              color: portfolioColors.sectionHeaderText,
+              fontFamily: portfolioFonts.sectionHeaders
+            }}
+          >
+            Featured Projects
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {(data.projects.length > 0 ? data.projects.slice(0, 3) : [
+              { name: 'E-Commerce Platform', description: 'Full-stack e-commerce solution with React and Node.js', technologies: ['React', 'Node.js', 'MongoDB'] },
+              { name: 'Task Management App', description: 'Collaborative task management with real-time updates', technologies: ['Vue.js', 'Express', 'PostgreSQL'] },
+              { name: 'Portfolio Website', description: 'Responsive portfolio with modern design', technologies: ['Next.js', 'Tailwind', 'Vercel'] }
+            ]).map((project, index) => (
+              <div 
+                key={index}
+                className="group rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                style={{ 
+                  backgroundColor: portfolioColors.projectCardBackground || portfolioColors.cardBackground,
+                  borderRadius: safeBorders.borderRadius
+                }}
+              >
+                <div 
+                  className="h-40 flex items-center justify-center text-5xl"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${portfolioColors.primaryAccent}20, ${portfolioColors.secondaryAccent}20)`
+                  }}
+                >
+                  {index === 0 ? '🛒' : index === 1 ? '📋' : '💼'}
+                </div>
+                <div className="p-6">
+                  <h3 
+                    className="font-bold text-lg mb-2"
+                    style={{ 
+                      color: portfolioColors.subHeaderText,
+                      fontFamily: portfolioFonts.subHeaders
+                    }}
+                  >
+                    {project.name}
+                  </h3>
+                  <p 
+                    className="text-sm mb-4"
+                    style={{ 
+                      color: portfolioColors.bodyText,
+                      fontFamily: portfolioFonts.bodyText,
+                      lineHeight: safeSpacing.lineHeight
+                    }}
+                  >
+                    {project.description || 'An amazing project showcasing modern web development techniques.'}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {project.technologies.map((tech, techIndex) => (
+                      <span 
+                        key={techIndex}
+                        className="px-3 py-1 text-xs rounded-full font-medium"
+                        style={{ 
+                          backgroundColor: portfolioColors.skillTagBackground || portfolioColors.sectionBackground,
+                          color: portfolioColors.primaryAccent
+                        }}
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex space-x-4">
+                    <button 
+                      className="text-sm font-medium hover:underline"
+                      style={{ color: portfolioColors.linkText }}
+                    >
+                      Live Demo
+                    </button>
+                    <button 
+                      className="text-sm font-medium hover:underline"
+                      style={{ color: portfolioColors.linkText }}
+                    >
+                      GitHub
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Skills Section */}
+        <div 
+          className="p-8"
+          style={{ backgroundColor: portfolioColors.pageBackground }}
+        >
+          <h2 
+            className="text-2xl font-bold text-center mb-8"
+            style={{ 
+              color: portfolioColors.sectionHeaderText,
+              fontFamily: portfolioFonts.sectionHeaders
+            }}
+          >
+            Skills & Expertise
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {(data.skills.length > 0 ? 
+              ['Technical', 'Soft'].map(category => ({
+                category,
+                skills: data.skills.filter(s => s.category === category).slice(0, 5)
+              })) : 
+              [
+                { category: 'Technical', skills: [{ name: 'React' }, { name: 'Node.js' }, { name: 'Python' }, { name: 'TypeScript' }, { name: 'AWS' }] },
+                { category: 'Soft', skills: [{ name: 'Leadership' }, { name: 'Communication' }, { name: 'Problem Solving' }, { name: 'Teamwork' }, { name: 'Creativity' }] }
+              ]
+            ).map(({ category, skills }) => (
+              <div key={category}>
+                <h3 
+                  className="font-bold text-lg mb-4"
+                  style={{ 
+                    color: portfolioColors.sectionHeaderText,
+                    fontFamily: portfolioFonts.sectionHeaders
+                  }}
+                >
+                  {category} Skills
+                </h3>
+                <div className="space-y-3">
+                  {skills.map((skill, index) => (
+                    <div key={index} className="flex items-center space-x-3">
+                      <span 
+                        className="flex-1 text-sm font-medium"
+                        style={{ 
+                          color: portfolioColors.bodyText,
+                          fontFamily: portfolioFonts.bodyText
+                        }}
+                      >
+                        {skill.name}
+                      </span>
+                      <div 
+                        className="flex-1 h-2 rounded-full"
+                        style={{ backgroundColor: portfolioColors.borderColor }}
+                      >
+                        <div 
+                          className="h-full rounded-full transition-all duration-1000"
+                          style={{ 
+                            backgroundColor: portfolioColors.timelineAccent || portfolioColors.primaryAccent,
+                            width: `${Math.random() * 30 + 70}%`
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Contact Section */}
+        <div 
+          className="p-8 text-center"
+          style={{ 
+            background: `linear-gradient(135deg, ${portfolioColors.primaryAccent}10, ${portfolioColors.secondaryAccent}10)`
+          }}
+        >
+          <h2 
+            className="text-2xl font-bold mb-4"
+            style={{ 
+              color: portfolioColors.sectionHeaderText,
+              fontFamily: portfolioFonts.sectionHeaders
+            }}
+          >
+            Let's Work Together
+          </h2>
+          <p 
+            className="text-lg mb-6 max-w-2xl mx-auto"
+            style={{ 
+              color: portfolioColors.bodyText,
+              fontFamily: portfolioFonts.bodyText,
+              lineHeight: safeSpacing.lineHeight
+            }}
+          >
+            Ready to bring your ideas to life? I'm always excited to work on new projects and collaborate with amazing people.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button 
+              className="px-8 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"
+              style={{ 
+                backgroundColor: portfolioColors.primaryAccent,
+                color: '#ffffff'
+              }}
+            >
+              Send Message
+            </button>
+            <button 
+              className="px-8 py-3 border-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105"
+              style={{ 
+                borderColor: portfolioColors.primaryAccent,
+                color: portfolioColors.primaryAccent
+              }}
+            >
+              Download Resume
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Default section orders in case sectionOrder is undefined
   const defaultResumeOrder = ['experience', 'education', 'skills', 'projects'];
   const defaultPortfolioOrder = ['projects', 'experience', 'skills', 'education'];
@@ -411,7 +740,7 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Portfolio Preview
+              Portfolio Website
             </button>
           </div>
         </div>
@@ -513,145 +842,7 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
               </div>
             </div>
           ) : (
-            <div style={{ fontFamily: currentCustomization.fonts.bodyText }}>
-              <div 
-                className="p-8 text-center text-white"
-                style={{ background: data.customization.portfolio.colors.heroBackground }}
-              >
-                <h1 
-                  className="text-4xl font-bold mb-2"
-                  style={{ 
-                    color: currentCustomization.colors.mainHeaderText,
-                    fontFamily: currentCustomization.fonts.mainHeader
-                  }}
-                >
-                  {data.personalInfo.fullName}
-                </h1>
-                <p className="opacity-90">
-                  {data.personalInfo.summary || 'Professional Portfolio'}
-                </p>
-                <div 
-                  className="flex justify-center space-x-6 text-sm mt-4"
-                  style={{ 
-                    color: currentCustomization.colors.contactText,
-                    fontFamily: currentCustomization.fonts.contactInfo
-                  }}
-                >
-                  <span>{data.personalInfo.email}</span>
-                  <span>{data.personalInfo.phone}</span>
-                  <span>{data.personalInfo.location}</span>
-                </div>
-              </div>
-              
-              <div 
-                className="p-8"
-                style={{ backgroundColor: currentCustomization.colors.pageBackground }}
-              >
-                {/* About Section */}
-                {data.personalInfo.summary && (
-                  <div 
-                    className="mb-8 p-6 rounded-lg"
-                    style={{ 
-                      backgroundColor: currentCustomization.colors.sectionBackground,
-                      borderRadius: safeBorders.borderRadius,
-                      marginBottom: safeSpacing.sectionSpacing
-                    }}
-                  >
-                    <h2 
-                      className="text-2xl font-bold mb-4 border-b-2 pb-2"
-                      style={{ 
-                        color: currentCustomization.colors.sectionHeaderText,
-                        fontFamily: currentCustomization.fonts.sectionHeaders,
-                        borderColor: currentCustomization.colors.primaryAccent
-                      }}
-                    >
-                      About Me
-                    </h2>
-                    <p 
-                      style={{ 
-                        color: currentCustomization.colors.bodyText,
-                        lineHeight: safeSpacing.lineHeight
-                      }}
-                    >
-                      {data.personalInfo.summary}
-                    </p>
-                  </div>
-                )}
-
-                {/* Render sections in custom portfolio order */}
-                {renderSectionByOrder(data.sectionOrder?.portfolio || defaultPortfolioOrder, 'portfolio')}
-
-                {/* Contact Section */}
-                <div 
-                  className="rounded-xl p-6 text-center"
-                  style={{ 
-                    backgroundColor: currentCustomization.colors.sectionBackground,
-                    borderRadius: safeBorders.borderRadius
-                  }}
-                >
-                  <h2 
-                    className="text-2xl font-bold mb-4"
-                    style={{ 
-                      color: currentCustomization.colors.sectionHeaderText,
-                      fontFamily: currentCustomization.fonts.sectionHeaders
-                    }}
-                  >
-                    Get In Touch
-                  </h2>
-                  <div className="space-y-2">
-                    <p style={{ 
-                      color: currentCustomization.colors.bodyText,
-                      fontFamily: currentCustomization.fonts.bodyText
-                    }}>
-                      <strong>Email:</strong> {data.personalInfo.email}
-                    </p>
-                    <p style={{ 
-                      color: currentCustomization.colors.bodyText,
-                      fontFamily: currentCustomization.fonts.bodyText
-                    }}>
-                      <strong>Phone:</strong> {data.personalInfo.phone}
-                    </p>
-                    <p style={{ 
-                      color: currentCustomization.colors.bodyText,
-                      fontFamily: currentCustomization.fonts.bodyText
-                    }}>
-                      <strong>Location:</strong> {data.personalInfo.location}
-                    </p>
-                    {(data.personalInfo.website || data.personalInfo.linkedin || data.personalInfo.github) && (
-                      <div className="flex justify-center space-x-4 mt-4">
-                        {data.personalInfo.website && (
-                          <a 
-                            href={data.personalInfo.website} 
-                            className="hover:underline"
-                            style={{ color: currentCustomization.colors.linkText }}
-                          >
-                            Website
-                          </a>
-                        )}
-                        {data.personalInfo.linkedin && (
-                          <a 
-                            href={data.personalInfo.linkedin} 
-                            className="hover:underline"
-                            style={{ color: currentCustomization.colors.linkText }}
-                          >
-                            LinkedIn
-                          </a>
-                        )}
-                        {data.personalInfo.github && (
-                          <a 
-                            href={data.personalInfo.github} 
-                            className="hover:underline"
-                            style={{ color: currentCustomization.colors.linkText }}
-                          >
-                            GitHub
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+            renderPortfolioPreview()
           )}
         </div>
 

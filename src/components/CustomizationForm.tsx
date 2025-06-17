@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Palette, Type, Paintbrush, Eye, Layers, Settings } from 'lucide-react';
+import { Palette, Type, Paintbrush, Eye, Layers, Settings, Globe, Monitor } from 'lucide-react';
 import type { CustomizationSettings, GradientSettings, ResumeData } from '../types';
 
 interface CustomizationFormProps {
@@ -164,53 +164,10 @@ const generateGradientCSS = (gradient: GradientSettings): string => {
   }
 };
 
-// Helper function to get sample data when user data is empty
-const getSampleData = (resumeData: ResumeData) => {
-  return {
-    personalInfo: {
-      fullName: resumeData.personalInfo.fullName || 'John Doe',
-      email: resumeData.personalInfo.email || 'john@example.com',
-      phone: resumeData.personalInfo.phone || '(555) 123-4567',
-      location: resumeData.personalInfo.location || 'New York, NY',
-      summary: resumeData.personalInfo.summary || 'Passionate developer with expertise in modern web technologies and a commitment to delivering high-quality solutions.'
-    },
-    experience: resumeData.experience.length > 0 ? resumeData.experience : [
-      {
-        id: '1',
-        company: 'Tech Company Inc.',
-        position: 'Senior Software Engineer',
-        startDate: '2020-01',
-        endDate: '',
-        current: true,
-        description: 'Developed and maintained web applications using modern technologies.',
-        achievements: ['Led team of 5 developers', 'Improved performance by 40%']
-      }
-    ],
-    projects: resumeData.projects.length > 0 ? resumeData.projects : [
-      {
-        id: '1',
-        name: 'E-commerce Platform',
-        description: 'A full-stack e-commerce solution with React and Node.js',
-        technologies: ['React', 'Node.js', 'MongoDB'],
-        liveUrl: 'https://example.com',
-        githubUrl: 'https://github.com/example',
-        imageUrl: ''
-      }
-    ],
-    skills: resumeData.skills.length > 0 ? resumeData.skills : [
-      { name: 'JavaScript', level: 'Expert' as const, category: 'Technical' as const },
-      { name: 'React', level: 'Advanced' as const, category: 'Technical' as const },
-      { name: 'Leadership', level: 'Advanced' as const, category: 'Soft' as const }
-    ]
-  };
-};
-
 export const CustomizationForm: React.FC<CustomizationFormProps> = ({ data, resumeData, onChange, onNext, onBack }) => {
   const [activeTab, setActiveTab] = useState<'resume' | 'portfolio'>('resume');
   const [activeSection, setActiveSection] = useState<'typography' | 'colors' | 'layout'>('typography');
   const [previewMode, setPreviewMode] = useState(false);
-
-  const sampleData = getSampleData(resumeData);
 
 const updateResumeSettings = (
   field: string,
@@ -531,6 +488,273 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
   const safeBorders = currentSettings.borders || defaultBorders;
   const safeLayout = (activeTab === 'portfolio' ? data.portfolio.layout : null) || defaultLayout;
 
+  // Portfolio-specific preview component
+  const renderPortfolioPreview = () => {
+    const portfolioColors = data.portfolio.colors;
+    const portfolioFonts = data.portfolio.fonts;
+    const portfolioLayout = data.portfolio.layout || defaultLayout;
+    
+    return (
+      <div className="bg-white rounded-lg border border-gray-300 overflow-hidden max-h-96 overflow-y-auto">
+        {/* Hero Section */}
+        <div 
+          className="relative p-8 text-center text-white min-h-[200px] flex flex-col justify-center"
+          style={{ 
+            background: portfolioColors.heroBackground || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            fontFamily: portfolioFonts.mainHeader
+          }}
+        >
+          {/* Animated Background Elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-10 left-10 w-4 h-4 bg-white/20 rounded-full animate-pulse"></div>
+            <div className="absolute top-20 right-16 w-6 h-6 bg-white/10 rounded-full animate-bounce"></div>
+            <div className="absolute bottom-16 left-20 w-3 h-3 bg-white/30 rounded-full animate-ping"></div>
+            <div className="absolute bottom-10 right-10 w-5 h-5 bg-white/15 rounded-full animate-pulse"></div>
+          </div>
+          
+          <div className="relative z-10">
+            <h1 
+              className="text-3xl font-bold mb-2"
+              style={{ 
+                color: portfolioColors.mainHeaderText || '#ffffff',
+                fontFamily: portfolioFonts.mainHeader
+              }}
+            >
+              {resumeData.personalInfo.fullName || 'John Doe'}
+            </h1>
+            <p className="text-lg opacity-90 mb-4">
+              {resumeData.personalInfo.summary || 'Full Stack Developer & Designer'}
+            </p>
+            
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button 
+                className="px-6 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg hover:bg-white/30 transition-all duration-300 transform hover:scale-105"
+                style={{ color: portfolioColors.mainHeaderText || '#ffffff' }}
+              >
+                View My Work
+              </button>
+              <button 
+                className="px-6 py-2 bg-white text-gray-900 rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
+              >
+                Get In Touch
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div 
+          className="sticky top-0 z-20 backdrop-blur-md border-b"
+          style={{ 
+            backgroundColor: portfolioColors.navigationBackground || '#ffffff',
+            borderColor: portfolioColors.borderColor
+          }}
+        >
+          <div className="flex justify-center space-x-6 py-3 text-sm">
+            {['About', 'Projects', 'Skills', 'Contact'].map((item) => (
+              <a 
+                key={item}
+                href="#"
+                className="hover:scale-105 transition-transform duration-200"
+                style={{ 
+                  color: portfolioColors.bodyText,
+                  fontFamily: portfolioFonts.bodyText
+                }}
+              >
+                {item}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Featured Projects Section */}
+        <div 
+          className="p-6"
+          style={{ backgroundColor: portfolioColors.pageBackground }}
+        >
+          <h2 
+            className="text-xl font-bold text-center mb-4"
+            style={{ 
+              color: portfolioColors.sectionHeaderText,
+              fontFamily: portfolioFonts.sectionHeaders
+            }}
+          >
+            Featured Projects
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {(resumeData.projects.length > 0 ? resumeData.projects.slice(0, 2) : [
+              { name: 'E-Commerce Platform', technologies: ['React', 'Node.js', 'MongoDB'] },
+              { name: 'Task Management App', technologies: ['Vue.js', 'Express', 'PostgreSQL'] }
+            ]).map((project, index) => (
+              <div 
+                key={index}
+                className="group rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                style={{ 
+                  backgroundColor: portfolioColors.projectCardBackground || portfolioColors.cardBackground,
+                  borderRadius: safeBorders.borderRadius
+                }}
+              >
+                <div 
+                  className="h-32 flex items-center justify-center text-4xl"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${portfolioColors.primaryAccent}20, ${portfolioColors.secondaryAccent}20)`
+                  }}
+                >
+                  💻
+                </div>
+                <div className="p-4">
+                  <h3 
+                    className="font-semibold mb-2"
+                    style={{ 
+                      color: portfolioColors.subHeaderText,
+                      fontFamily: portfolioFonts.subHeaders
+                    }}
+                  >
+                    {project.name}
+                  </h3>
+                  <div className="flex flex-wrap gap-1">
+                    {project.technologies.map((tech, techIndex) => (
+                      <span 
+                        key={techIndex}
+                        className="px-2 py-1 text-xs rounded-full"
+                        style={{ 
+                          backgroundColor: portfolioColors.skillTagBackground || portfolioColors.sectionBackground,
+                          color: portfolioColors.primaryAccent
+                        }}
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Skills Section */}
+        <div 
+          className="p-6"
+          style={{ backgroundColor: portfolioColors.alternateBackground }}
+        >
+          <h2 
+            className="text-xl font-bold text-center mb-4"
+            style={{ 
+              color: portfolioColors.sectionHeaderText,
+              fontFamily: portfolioFonts.sectionHeaders
+            }}
+          >
+            Skills & Expertise
+          </h2>
+          
+          <div className="grid grid-cols-2 gap-4">
+            {(resumeData.skills.length > 0 ? 
+              ['Technical', 'Soft'].map(category => ({
+                category,
+                skills: resumeData.skills.filter(s => s.category === category).slice(0, 3)
+              })) : 
+              [
+                { category: 'Technical', skills: [{ name: 'React' }, { name: 'Node.js' }, { name: 'Python' }] },
+                { category: 'Soft', skills: [{ name: 'Leadership' }, { name: 'Communication' }, { name: 'Problem Solving' }] }
+              ]
+            ).map(({ category, skills }) => (
+              <div key={category}>
+                <h3 
+                  className="font-medium mb-2"
+                  style={{ 
+                    color: portfolioColors.sectionHeaderText,
+                    fontFamily: portfolioFonts.sectionHeaders
+                  }}
+                >
+                  {category}
+                </h3>
+                <div className="space-y-2">
+                  {skills.map((skill, index) => (
+                    <div 
+                      key={index}
+                      className="flex items-center space-x-2"
+                    >
+                      <div 
+                        className="flex-1 h-2 rounded-full"
+                        style={{ backgroundColor: portfolioColors.borderColor }}
+                      >
+                        <div 
+                          className="h-full rounded-full transition-all duration-1000"
+                          style={{ 
+                            backgroundColor: portfolioColors.primaryAccent,
+                            width: `${Math.random() * 40 + 60}%`
+                          }}
+                        />
+                      </div>
+                      <span 
+                        className="text-sm"
+                        style={{ 
+                          color: portfolioColors.bodyText,
+                          fontFamily: portfolioFonts.bodyText
+                        }}
+                      >
+                        {skill.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Contact Section */}
+        <div 
+          className="p-6 text-center"
+          style={{ 
+            background: `linear-gradient(135deg, ${portfolioColors.primaryAccent}10, ${portfolioColors.secondaryAccent}10)`
+          }}
+        >
+          <h2 
+            className="text-xl font-bold mb-4"
+            style={{ 
+              color: portfolioColors.sectionHeaderText,
+              fontFamily: portfolioFonts.sectionHeaders
+            }}
+          >
+            Let's Work Together
+          </h2>
+          <p 
+            className="mb-4"
+            style={{ 
+              color: portfolioColors.bodyText,
+              fontFamily: portfolioFonts.bodyText
+            }}
+          >
+            Ready to bring your ideas to life? Let's discuss your next project.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button 
+              className="px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105"
+              style={{ 
+                backgroundColor: portfolioColors.primaryAccent,
+                color: '#ffffff'
+              }}
+            >
+              Send Message
+            </button>
+            <button 
+              className="px-6 py-2 border rounded-lg font-medium transition-all duration-300 transform hover:scale-105"
+              style={{ 
+                borderColor: portfolioColors.primaryAccent,
+                color: portfolioColors.primaryAccent
+              }}
+            >
+              Download CV
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-gray-200/50 shadow-lg">
@@ -547,23 +771,25 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
           <div className="bg-gray-100 p-1 rounded-lg">
             <button
               onClick={() => setActiveTab('resume')}
-              className={`px-6 py-2 rounded-md font-medium transition-all duration-200 ${
+              className={`flex items-center space-x-2 px-6 py-2 rounded-md font-medium transition-all duration-200 ${
                 activeTab === 'resume'
                   ? 'bg-white text-blue-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Resume Style
+              <Monitor className="w-4 h-4" />
+              <span>Resume Style</span>
             </button>
             <button
               onClick={() => setActiveTab('portfolio')}
-              className={`px-6 py-2 rounded-md font-medium transition-all duration-200 ${
+              className={`flex items-center space-x-2 px-6 py-2 rounded-md font-medium transition-all duration-200 ${
                 activeTab === 'portfolio'
                   ? 'bg-white text-blue-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Portfolio Style
+              <Globe className="w-4 h-4" />
+              <span>Portfolio Website</span>
             </button>
           </div>
         </div>
@@ -706,6 +932,39 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
                 {activeTab === 'portfolio' && (
                   <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
                     {renderGradientControls()}
+                  </div>
+                )}
+
+                {/* Portfolio-specific colors */}
+                {activeTab === 'portfolio' && (
+                  <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Portfolio-Specific Colors</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {renderColorInput(
+                        'Navigation Background',
+                        currentSettings.colors.navigationBackground || '#ffffff',
+                        (value) => updatePortfolioSettings('navigationBackground', value, 'colors'),
+                        'Top navigation bar background'
+                      )}
+                      {renderColorInput(
+                        'Project Card Background',
+                        currentSettings.colors.projectCardBackground || '#ffffff',
+                        (value) => updatePortfolioSettings('projectCardBackground', value, 'colors'),
+                        'Individual project card backgrounds'
+                      )}
+                      {renderColorInput(
+                        'Skill Tag Background',
+                        currentSettings.colors.skillTagBackground || '#f1f5f9',
+                        (value) => updatePortfolioSettings('skillTagBackground', value, 'colors'),
+                        'Technology and skill tag backgrounds'
+                      )}
+                      {renderColorInput(
+                        'Timeline Accent',
+                        currentSettings.colors.timelineAccent || '#2563eb',
+                        (value) => updatePortfolioSettings('timelineAccent', value, 'colors'),
+                        'Timeline and progress bar accent color'
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -1002,6 +1261,23 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
                           <option value="0.8s">Very Slow (0.8s)</option>
                         </select>
                       </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Card Shadow Intensity
+                        </label>
+                        <select
+                          value={safeLayout.cardShadow || '0 10px 25px rgba(0,0,0,0.1)'}
+                          onChange={(e) => updatePortfolioSettings('cardShadow', e.target.value, 'layout')}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                          <option value="none">No Shadow</option>
+                          <option value="0 2px 4px rgba(0,0,0,0.1)">Light</option>
+                          <option value="0 4px 8px rgba(0,0,0,0.1)">Medium</option>
+                          <option value="0 10px 25px rgba(0,0,0,0.1)">Strong</option>
+                          <option value="0 20px 40px rgba(0,0,0,0.15)">Very Strong</option>
+                        </select>
+                      </div>
                     </>
                   )}
                 </div>
@@ -1024,8 +1300,8 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
               </button>
             </div>
             
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-              {activeTab === 'resume' ? (
+            {activeTab === 'portfolio' ? renderPortfolioPreview() : (
+              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                 <div 
                   className="p-6 space-y-4"
                   style={{ 
@@ -1042,13 +1318,13 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
                         fontFamily: currentSettings.fonts.mainHeader
                       }}
                     >
-                      {sampleData.personalInfo.fullName}
+                      {resumeData.personalInfo.fullName || 'John Doe'}
                     </h1>
                     <p style={{ 
                       color: currentSettings.colors.contactText,
                       fontFamily: currentSettings.fonts.contactInfo
                     }}>
-                      {sampleData.personalInfo.email} | {sampleData.personalInfo.phone}
+                      {resumeData.personalInfo.email || 'john@example.com'} | {resumeData.personalInfo.phone || '(555) 123-4567'}
                     </p>
                   </div>
                   
@@ -1079,7 +1355,7 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
                           fontFamily: currentSettings.fonts.subHeaders
                         }}
                       >
-                        {sampleData.experience[0].position}
+                        {resumeData.experience[0]?.position || 'Software Engineer'}
                       </h3>
                       <p 
                         className="text-sm"
@@ -1088,7 +1364,7 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
                           fontFamily: currentSettings.fonts.dates
                         }}
                       >
-                        {sampleData.experience[0].company} • {sampleData.experience[0].startDate} - Present
+                        {resumeData.experience[0]?.company || 'Tech Company Inc.'} • {resumeData.experience[0]?.startDate || '2020'} - {resumeData.experience[0]?.current ? 'Present' : resumeData.experience[0]?.endDate || 'Present'}
                       </p>
                       <p 
                         className="text-sm"
@@ -1097,345 +1373,13 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
                           marginBottom: safeSpacing.paragraphSpacing
                         }}
                       >
-                        {sampleData.experience[0].description}
+                        {resumeData.experience[0]?.description || 'Developed and maintained web applications using modern technologies.'}
                       </p>
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div style={{ fontFamily: currentSettings.fonts.bodyText }}>
-                  {/* Hero Section */}
-                  <div 
-                    className="relative p-8 text-center text-white overflow-hidden"
-                    style={{ 
-                      background: data?.portfolio?.colors?.heroBackground || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      opacity: data?.portfolio?.colors?.heroGradient?.opacity || 1,
-                      minHeight: '200px'
-                    }}
-                  >
-                    {/* Animated background elements */}
-                    <div className="absolute inset-0 opacity-20">
-                      <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full animate-pulse"></div>
-                      <div className="absolute bottom-10 right-10 w-16 h-16 bg-white rounded-full animate-bounce"></div>
-                      <div className="absolute top-1/2 left-1/4 w-12 h-12 bg-white rounded-full animate-ping"></div>
-                    </div>
-                    
-                    <div className="relative z-10">
-                      <h1 
-                        className="text-4xl font-bold mb-4 animate-fade-in"
-                        style={{ 
-                          color: currentSettings.colors.mainHeaderText,
-                          fontFamily: currentSettings.fonts.mainHeader
-                        }}
-                      >
-                        {sampleData.personalInfo.fullName}
-                      </h1>
-                      <p className="text-xl mb-6 opacity-90 animate-slide-up">
-                        Full Stack Developer & UI/UX Designer
-                      </p>
-                      <div className="flex justify-center space-x-6 text-sm animate-fade-in-delayed">
-                        <span>{sampleData.personalInfo.email}</span>
-                        <span>{sampleData.personalInfo.phone}</span>
-                        <span>{sampleData.personalInfo.location}</span>
-                      </div>
-                      
-                      {/* Call to action buttons */}
-                      <div className="mt-8 space-x-4">
-                        <button 
-                          className="px-6 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full hover:bg-white/30 transition-all duration-300 transform hover:scale-105"
-                          style={{ color: currentSettings.colors.mainHeaderText }}
-                        >
-                          View My Work
-                        </button>
-                        <button 
-                          className="px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full hover:bg-white/20 transition-all duration-300"
-                          style={{ color: currentSettings.colors.mainHeaderText }}
-                        >
-                          Contact Me
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Navigation Bar */}
-                  <div 
-                    className="sticky top-0 z-50 backdrop-blur-md border-b"
-                    style={{ 
-                      backgroundColor: currentSettings.colors.cardBackground + 'E6',
-                      borderColor: currentSettings.colors.borderColor
-                    }}
-                  >
-                    <div className="flex justify-center space-x-8 py-4">
-                      {['About', 'Projects', 'Experience', 'Skills', 'Contact'].map((item) => (
-                        <a 
-                          key={item}
-                          href={`#${item.toLowerCase()}`}
-                          className="font-medium hover:scale-105 transition-all duration-200"
-                          style={{ 
-                            color: currentSettings.colors.bodyText,
-                            fontFamily: currentSettings.fonts.bodyText
-                          }}
-                        >
-                          {item}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div 
-                    className="p-8"
-                    style={{ backgroundColor: currentSettings.colors.pageBackground }}
-                  >
-                    {/* About Section with animated cards */}
-                    <div 
-                      className="mb-8 p-6 rounded-xl relative overflow-hidden"
-                      style={{ 
-                        backgroundColor: currentSettings.colors.sectionBackground,
-                        borderRadius: safeBorders.borderRadius,
-                        marginBottom: safeSpacing.sectionSpacing
-                      }}
-                    >
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full -translate-y-16 translate-x-16"></div>
-                      
-                      <h2 
-                        className="text-3xl font-bold mb-6 relative z-10"
-                        style={{ 
-                          color: currentSettings.colors.sectionHeaderText,
-                          fontFamily: currentSettings.fonts.sectionHeaders
-                        }}
-                      >
-                        About Me
-                      </h2>
-                      <p 
-                        className="text-lg leading-relaxed relative z-10"
-                        style={{ 
-                          color: currentSettings.colors.bodyText,
-                          lineHeight: safeSpacing.lineHeight
-                        }}
-                      >
-                        {sampleData.personalInfo.summary}
-                      </p>
-                    </div>
-
-                    {/* Featured Projects Grid */}
-                    <div className="mb-8">
-                      <h2 
-                        className="text-3xl font-bold mb-6 text-center"
-                        style={{ 
-                          color: currentSettings.colors.sectionHeaderText,
-                          fontFamily: currentSettings.fonts.sectionHeaders
-                        }}
-                      >
-                        Featured Projects
-                      </h2>
-                      <div className="grid md:grid-cols-2 gap-6">
-                        {sampleData.projects.slice(0, 2).map((project, index) => (
-                          <div 
-                            key={index}
-                            className="group relative overflow-hidden rounded-xl transform hover:scale-105 transition-all duration-300 hover:shadow-2xl"
-                            style={{ 
-                              backgroundColor: currentSettings.colors.cardBackground,
-                              borderRadius: safeBorders.borderRadius,
-                              border: `1px solid ${currentSettings.colors.borderColor}`
-                            }}
-                          >
-                            {/* Project image placeholder with gradient */}
-                            <div 
-                              className="h-48 relative overflow-hidden"
-                              style={{ 
-                                background: `linear-gradient(135deg, ${currentSettings.colors.primaryAccent}40, ${currentSettings.colors.secondaryAccent}40)`
-                              }}
-                            >
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="text-6xl opacity-30">💻</div>
-                              </div>
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            </div>
-                            
-                            <div className="p-6">
-                              <h3 
-                                className="text-xl font-bold mb-3"
-                                style={{ 
-                                  color: currentSettings.colors.subHeaderText,
-                                  fontFamily: currentSettings.fonts.subHeaders
-                                }}
-                              >
-                                {project.name}
-                              </h3>
-                              <p 
-                                className="mb-4"
-                                style={{ 
-                                  color: currentSettings.colors.bodyText,
-                                  lineHeight: safeSpacing.lineHeight
-                                }}
-                              >
-                                {project.description}
-                              </p>
-                              <div className="flex flex-wrap gap-2 mb-4">
-                                {project.technologies.map((tech, techIndex) => (
-                                  <span
-                                    key={techIndex}
-                                    className="px-3 py-1 rounded-full text-sm font-medium"
-                                    style={{ 
-                                      backgroundColor: currentSettings.colors.primaryAccent + '20',
-                                      color: currentSettings.colors.primaryAccent
-                                    }}
-                                  >
-                                    {tech}
-                                  </span>
-                                ))}
-                              </div>
-                              <div className="flex space-x-4">
-                                <button 
-                                  className="px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105"
-                                  style={{ 
-                                    backgroundColor: currentSettings.colors.primaryAccent,
-                                    color: 'white'
-                                  }}
-                                >
-                                  Live Demo
-                                </button>
-                                <button 
-                                  className="px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105"
-                                  style={{ 
-                                    backgroundColor: 'transparent',
-                                    color: currentSettings.colors.primaryAccent,
-                                    border: `2px solid ${currentSettings.colors.primaryAccent}`
-                                  }}
-                                >
-                                  GitHub
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Skills Section with animated progress bars */}
-                    <div 
-                      className="mb-8 p-6 rounded-xl"
-                      style={{ 
-                        backgroundColor: currentSettings.colors.alternateBackground,
-                        borderRadius: safeBorders.borderRadius
-                      }}
-                    >
-                      <h2 
-                        className="text-3xl font-bold mb-6 text-center"
-                        style={{ 
-                          color: currentSettings.colors.sectionHeaderText,
-                          fontFamily: currentSettings.fonts.sectionHeaders
-                        }}
-                      >
-                        Skills & Expertise
-                      </h2>
-                      <div className="grid md:grid-cols-3 gap-6">
-                        {['Technical', 'Soft', 'Tool'].map(category => {
-                          const categorySkills = sampleData.skills.filter(skill => skill.category === category);
-                          return categorySkills.length > 0 ? (
-                            <div key={category} className="text-center">
-                              <h3 
-                                className="font-bold mb-4"
-                                style={{ 
-                                  color: currentSettings.colors.sectionHeaderText,
-                                  fontFamily: currentSettings.fonts.sectionHeaders
-                                }}
-                              >
-                                {category} Skills
-                              </h3>
-                              <div className="space-y-3">
-                                {categorySkills.map((skill, index) => (
-                                  <div key={index} className="relative">
-                                    <div 
-                                      className="px-4 py-3 rounded-lg transform hover:scale-105 transition-all duration-200 cursor-pointer"
-                                      style={{ 
-                                        backgroundColor: currentSettings.colors.cardBackground,
-                                        border: `2px solid ${currentSettings.colors.borderColor}`,
-                                        borderRadius: safeBorders.borderRadius
-                                      }}
-                                    >
-                                      <span 
-                                        className="font-medium"
-                                        style={{ color: currentSettings.colors.bodyText }}
-                                      >
-                                        {skill.name}
-                                      </span>
-                                      <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                        <div 
-                                          className="h-full rounded-full transition-all duration-1000 ease-out"
-                                          style={{ 
-                                            backgroundColor: currentSettings.colors.primaryAccent,
-                                            width: skill.level === 'Expert' ? '95%' : 
-                                                   skill.level === 'Advanced' ? '80%' : 
-                                                   skill.level === 'Intermediate' ? '65%' : '40%'
-                                          }}
-                                        />
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ) : null;
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Contact Section with interactive elements */}
-                    <div 
-                      className="text-center p-8 rounded-xl relative overflow-hidden"
-                      style={{ 
-                        backgroundColor: currentSettings.colors.sectionBackground,
-                        borderRadius: safeBorders.borderRadius
-                      }}
-                    >
-                      <div className="absolute inset-0 opacity-10">
-                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-400 to-purple-400"></div>
-                      </div>
-                      
-                      <div className="relative z-10">
-                        <h2 
-                          className="text-3xl font-bold mb-6"
-                          style={{ 
-                            color: currentSettings.colors.sectionHeaderText,
-                            fontFamily: currentSettings.fonts.sectionHeaders
-                          }}
-                        >
-                          Let's Work Together
-                        </h2>
-                        <p 
-                          className="text-lg mb-8"
-                          style={{ 
-                            color: currentSettings.colors.bodyText,
-                            lineHeight: safeSpacing.lineHeight
-                          }}
-                        >
-                          Ready to bring your ideas to life? Let's create something amazing together.
-                        </p>
-                        <div className="flex justify-center space-x-6">
-                          <button 
-                            className="px-8 py-4 rounded-full font-bold text-white transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
-                            style={{ backgroundColor: currentSettings.colors.primaryAccent }}
-                          >
-                            Get In Touch
-                          </button>
-                          <button 
-                            className="px-8 py-4 rounded-full font-bold transition-all duration-300 transform hover:scale-105"
-                            style={{ 
-                              backgroundColor: 'transparent',
-                              color: currentSettings.colors.primaryAccent,
-                              border: `2px solid ${currentSettings.colors.primaryAccent}`
-                            }}
-                          >
-                            Download Resume
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1454,35 +1398,6 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
           </button>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slide-up {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes fade-in-delayed {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-out;
-        }
-        
-        .animate-slide-up {
-          animation: slide-up 0.8s ease-out 0.2s both;
-        }
-        
-        .animate-fade-in-delayed {
-          animation: fade-in-delayed 0.8s ease-out 0.4s both;
-        }
-      `}</style>
     </div>
   );
 };
