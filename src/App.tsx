@@ -198,10 +198,6 @@ function AppContent() {
     }
   };
 
-  const handleSkipToStyling = () => {
-    setCurrentStep('customization');
-  };
-
   const handleSave = async () => {
     try {
       const title = resumeData.personalInfo.fullName 
@@ -232,7 +228,6 @@ function AppContent() {
             data={resumeData.personalInfo}
             onChange={(personalInfo) => setResumeData({ ...resumeData, personalInfo })}
             onNext={handleNext}
-            onSkipToStyling={handleSkipToStyling}
           />
         );
       case 'experience':

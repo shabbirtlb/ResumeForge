@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Mail, Phone, MapPin, Globe, Linkedin, Github, Paintbrush } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Globe, Linkedin, Github } from 'lucide-react';
 import type { PersonalInfo } from '../../types';
 
 interface PersonalInfoFormProps {
@@ -23,8 +23,6 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
   const handleChange = (field: keyof PersonalInfo, value: string) => {
     onChange({ ...data, [field]: value });
   };
-
-  const hasBasicInfo = data.fullName && data.email && data.phone && data.location;
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -170,22 +168,10 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
             />
           </div>
 
-          <div className="flex justify-between">
-            {/* Skip to Styling Button - Only show if basic info is filled */}
-            {hasBasicInfo && onSkipToStyling && (
-              <button
-                type="button"
-                onClick={onSkipToStyling}
-                className="flex items-center space-x-2 px-6 py-3 border border-purple-300 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors duration-200"
-              >
-                <Paintbrush className="w-5 h-5" />
-                <span>Skip to Styling</span>
-              </button>
-            )}
-            
+          <div className="flex justify-end">
             <button
               type="submit"
-              className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ml-auto"
+              className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               Continue to Experience
             </button>
