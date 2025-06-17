@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, FileText, Edit, Trash2, Download, Eye, Search, Filter, Calendar, Copy, Globe } from 'lucide-react';
+import { Plus, FileText, Edit, Trash2, Download, Search, Filter, Calendar, Copy, Globe } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResumeStorage } from '../../hooks/useResumeStorage';
 import { generateResumePDF } from '../../utils/pdfGenerator';
 import { downloadPortfolioHTML } from '../../utils/portfolioGenerator';
-import { PreviewModal } from './PreviewModal';
 import type { SavedResume, ResumeData } from '../../types';
 
 interface DashboardProps {
@@ -20,7 +19,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
   const [filterBy, setFilterBy] = useState<'all' | 'recent' | 'templates'>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [downloadingPDF, setDownloadingPDF] = useState<string | null>(null);
-  const [previewResume, setPreviewResume] = useState<SavedResume | null>(null);
 
   useEffect(() => {
     loadSavedResumes();
@@ -81,10 +79,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
       console.error('Error generating portfolio:', error);
       alert('Failed to generate portfolio. Please try again.');
     }
-  };
-
-  const handlePreviewResume = (resume: SavedResume) => {
-    setPreviewResume(resume);
   };
 
   const filteredResumes = savedResumes.filter(resume => {
@@ -276,21 +270,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
                 {/* Action Buttons */}
                 <div className="space-y-3">
                   {/* Primary Actions Row */}
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-center">
                     <button
                       onClick={() => onEditResume(resume.data)}
-                      className="flex items-center space-x-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors duration-200 text-sm font-medium"
+                      className="flex items-center space-x-2 px-6 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors duration-200 font-medium w-full justify-center"
                     >
                       <Edit className="w-4 h-4" />
-                      <span>Edit</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => handlePreviewResume(resume)}
-                      className="flex items-center space-x-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 text-sm font-medium"
-                    >
-                      <Eye className="w-4 h-4" />
-                      <span>Preview</span>
+                      <span>Edit Resume</span>
                     </button>
                   </div>
 
@@ -338,14 +324,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
           </div>
         )}
       </main>
-
-      {/* Preview Modal */}
-      {previewResume && (
-        <PreviewModal
-          resume={previewResume}
-          onClose={() => setPreviewResume(null)}
-        />
-      )}
     </div>
   );
 };
