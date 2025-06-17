@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Download, Globe, FileText, Share2, Save, Upload } from 'lucide-react';
 import { generateResumePDF, exportToJSON } from '../utils/pdfGenerator';
 import { downloadPortfolioHTML } from '../utils/portfolioGenerator';
@@ -18,6 +18,19 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState<'resume' | 'portfolio'>('resume');
   const [activeSkillType, setActiveSkillType] = useState<'Technical' | 'Soft' | 'Language' | 'Tool'>('Technical');
+
+  // Move availableCategories and useEffect to top level
+  const skillCategories = ['Technical', 'Soft', 'Language', 'Tool'] as const;
+  const availableCategories = skillCategories.filter(category => 
+    data.skills.some(skill => skill.category === category)
+  );
+
+  // Move useEffect to top level of component
+  useEffect(() => {
+    if (availableCategories.length > 0 && !availableCategories.includes(activeSkillType)) {
+      setActiveSkillType(availableCategories[0]);
+    }
+  }, [data.skills, activeSkillType, availableCategories]);
 
   const handleDownloadPDF = async () => {
     try {
@@ -373,19 +386,6 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
     const portfolioLayout = data.customization.portfolio.layout || { heroHeight: '80vh', animationSpeed: '0.3s' };
     const safeBorders = data.customization.portfolio.borders || { borderRadius: '8px' };
     const safeSpacing = data.customization.portfolio.spacing || { sectionSpacing: '2rem', paragraphSpacing: '1rem', lineHeight: '1.6' };
-    
-    // Get skills by category for the toggle functionality
-    const skillCategories = ['Technical', 'Soft', 'Language', 'Tool'] as const;
-    const availableCategories = skillCategories.filter(category => 
-      data.skills.some(skill => skill.category === category)
-    );
-    
-    // If no skills in current active category, switch to first available
-    React.useEffect(() => {
-      if (availableCategories.length > 0 && !availableCategories.includes(activeSkillType)) {
-        setActiveSkillType(availableCategories[0]);
-      }
-    }, [data.skills]);
     
     const currentSkills = data.skills.filter(skill => skill.category === activeSkillType);
     
