@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, FileText, Edit, Trash2, Download, Eye, Search, Filter, Calendar, Copy, ExternalLink } from 'lucide-react';
+import { Plus, FileText, Edit, Trash2, Download, Eye, Search, Filter, Calendar, Copy, Globe } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResumeStorage } from '../../hooks/useResumeStorage';
 import { generateResumePDF } from '../../utils/pdfGenerator';
@@ -311,59 +311,64 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
                   )}
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
+                {/* Action Buttons */}
+                <div className="space-y-3">
+                  {/* Primary Actions Row */}
+                  <div className="flex items-center justify-between">
                     <button
                       onClick={() => onEditResume(resume.data)}
-                      className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200"
-                      title="Edit"
+                      className="flex items-center space-x-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors duration-200 text-sm font-medium"
                     >
                       <Edit className="w-4 h-4" />
+                      <span>Edit</span>
                     </button>
+                    
                     <button
-                      onClick={() => handleDuplicateResume(resume)}
-                      className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors duration-200"
-                      title="Duplicate"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteResume(resume.id)}
-                      className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <button 
                       onClick={() => handlePreviewResume(resume)}
-                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                      title="Preview Resume"
+                      className="flex items-center space-x-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 text-sm font-medium"
                     >
                       <Eye className="w-4 h-4" />
+                      <span>Preview</span>
                     </button>
-                    <div className="relative group">
-                      <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200">
-                        <Download className="w-4 h-4" />
-                      </button>
-                      <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                        <button
-                          onClick={() => handleDownloadPDF(resume)}
-                          disabled={downloadingPDF === resume.id}
-                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg disabled:opacity-50"
-                        >
-                          {downloadingPDF === resume.id ? 'Generating PDF...' : 'Download PDF'}
-                        </button>
-                        <button
-                          onClick={() => handleDownloadPortfolio(resume)}
-                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-b-lg"
-                        >
-                          Download Portfolio
-                        </button>
-                      </div>
-                    </div>
+                  </div>
+
+                  {/* Download Actions Row */}
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handleDownloadPDF(resume)}
+                      disabled={downloadingPDF === resume.id}
+                      className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors duration-200 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>{downloadingPDF === resume.id ? 'Generating...' : 'PDF'}</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleDownloadPortfolio(resume)}
+                      className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors duration-200 text-sm font-medium"
+                    >
+                      <Globe className="w-4 h-4" />
+                      <span>Portfolio</span>
+                    </button>
+                  </div>
+
+                  {/* Secondary Actions Row */}
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                    <button
+                      onClick={() => handleDuplicateResume(resume)}
+                      className="flex items-center space-x-1 px-2 py-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors duration-200 text-sm"
+                    >
+                      <Copy className="w-3 h-3" />
+                      <span>Duplicate</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => handleDeleteResume(resume.id)}
+                      className="flex items-center space-x-1 px-2 py-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded transition-colors duration-200 text-sm"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>Delete</span>
+                    </button>
                   </div>
                 </div>
               </div>
