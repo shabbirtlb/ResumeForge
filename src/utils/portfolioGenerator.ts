@@ -76,7 +76,7 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
                     <div class="date">${exp.startDate} - ${exp.current ? 'Present' : exp.endDate}</div>
                     <p>${exp.description}</p>
                     ${exp.achievements.length > 0 ? `
-                    <ul style="margin-top: 15px; margin-left: 20px;">
+                    <ul class="achievements-list">
                       ${exp.achievements.map(achievement => `<li>${achievement}</li>`).join('')}
                     </ul>
                     ` : ''}
@@ -466,6 +466,21 @@ export const generatePortfolioHTML = (data: ResumeData, templateId: string): str
         .timeline-item p {
             line-height: ${safeSpacing.lineHeight};
             color: ${safeColors.bodyText};
+            margin-bottom: ${safeSpacing.paragraphSpacing};
+        }
+        
+        .achievements-list {
+            margin-top: 15px;
+            margin-left: 20px;
+            list-style-type: disc;
+            list-style-position: outside;
+        }
+        
+        .achievements-list li {
+            color: ${safeColors.bodyText};
+            margin-bottom: 8px;
+            line-height: ${safeSpacing.lineHeight};
+            padding-left: 5px;
         }
         
         /* Projects */

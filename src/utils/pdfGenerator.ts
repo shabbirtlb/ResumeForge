@@ -158,7 +158,7 @@ const generatePDFHTML = (data: ResumeData): string => {
                   <div class="description">${exp.description}</div>
                   ${exp.achievements.length > 0 ? `
                     <ul class="achievements">
-                      ${exp.achievements.map(achievement => `<li>${achievement}</li>`).join('')}
+                      ${exp.achievements.map(achievement => `<li class="achievement-item">${achievement}</li>`).join('')}
                     </ul>
                   ` : ''}
                 </div>
@@ -387,17 +387,31 @@ const generatePDFHTML = (data: ResumeData): string => {
       }
       
       .achievements {
-        margin-top: 8px;
-        margin-left: 18px;
-        list-style-type: disc;
+        margin-top: 12px;
+        margin-left: 0;
+        padding-left: 0;
+        list-style: none;
       }
       
-      .achievements li {
+      .achievement-item {
         font-size: 13px;
         color: ${safeColors.bodyText};
-        margin-bottom: 3px;
-        line-height: 1.3;
+        margin-bottom: 4px;
+        line-height: 1.4;
         font-family: '${safeFonts.bodyText}', Arial, sans-serif;
+        position: relative;
+        padding-left: 20px;
+      }
+      
+      .achievement-item::before {
+        content: "•";
+        color: ${safeColors.primaryAccent};
+        font-weight: bold;
+        position: absolute;
+        left: 0;
+        top: 0;
+        font-size: 16px;
+        line-height: 1.2;
       }
       
       .gpa,
