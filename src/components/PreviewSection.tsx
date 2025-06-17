@@ -535,12 +535,20 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
               data-portfolio-preview="true"
               style={{ fontFamily: currentCustomization.fonts.bodyText }}
             >
+              {/* Portfolio Hero Section */}
               <div 
                 className="p-8 text-center text-white"
-                style={{ background: data.customization.portfolio.colors.heroBackground }}
+                style={{ 
+                  background: data.customization.portfolio.colors.heroBackground,
+                  minHeight: '400px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}
               >
                 <h1 
-                  className="text-4xl font-bold mb-2"
+                  className="text-4xl font-bold mb-4"
                   style={{ 
                     color: currentCustomization.colors.mainHeaderText,
                     fontFamily: currentCustomization.fonts.mainHeader
@@ -548,11 +556,11 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
                 >
                   {data.personalInfo.fullName}
                 </h1>
-                <p className="opacity-90">
+                <p className="text-xl opacity-90 mb-6">
                   {data.personalInfo.summary || 'Professional Portfolio'}
                 </p>
                 <div 
-                  className="flex justify-center space-x-6 text-sm mt-4"
+                  className="flex justify-center space-x-6 text-sm"
                   style={{ 
                     color: currentCustomization.colors.contactText,
                     fontFamily: currentCustomization.fonts.contactInfo
@@ -562,8 +570,42 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
                   <span>{data.personalInfo.phone}</span>
                   <span>{data.personalInfo.location}</span>
                 </div>
+                
+                {/* Social Links */}
+                {(data.personalInfo.website || data.personalInfo.linkedin || data.personalInfo.github) && (
+                  <div className="flex justify-center space-x-4 mt-6">
+                    {data.personalInfo.website && (
+                      <a 
+                        href={data.personalInfo.website} 
+                        className="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors duration-200"
+                        style={{ color: 'white' }}
+                      >
+                        Website
+                      </a>
+                    )}
+                    {data.personalInfo.linkedin && (
+                      <a 
+                        href={data.personalInfo.linkedin} 
+                        className="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors duration-200"
+                        style={{ color: 'white' }}
+                      >
+                        LinkedIn
+                      </a>
+                    )}
+                    {data.personalInfo.github && (
+                      <a 
+                        href={data.personalInfo.github} 
+                        className="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors duration-200"
+                        style={{ color: 'white' }}
+                      >
+                        GitHub
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
               
+              {/* Portfolio Content */}
               <div 
                 className="p-8"
                 style={{ backgroundColor: currentCustomization.colors.pageBackground }}
