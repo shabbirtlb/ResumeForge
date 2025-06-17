@@ -43,7 +43,7 @@ const extractCompleteHTML = (element: HTMLElement, fullName: string): string => 
     })
     .join('\n');
 
-  // Get all computed styles for the element and its descendants
+  // Get inline styles from the element
   const inlineStyles = extractInlineStyles(element);
   
   // Create the complete HTML document
@@ -63,18 +63,101 @@ const extractCompleteHTML = (element: HTMLElement, fullName: string): string => 
     
     <!-- Extracted Styles -->
     <style>
-        ${allStyles}
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
-        ${inlineStyles}
-        
-        /* Additional portfolio-specific styles */
         body {
             margin: 0;
             padding: 0;
             scroll-behavior: smooth;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
         }
         
-        /* Ensure proper styling for links */
+        /* Tailwind CSS classes - essential ones */
+        .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .text-xs { font-size: 0.75rem; line-height: 1rem; }
+        
+        .font-bold { font-weight: 700; }
+        .font-semibold { font-weight: 600; }
+        .font-medium { font-weight: 500; }
+        .italic { font-style: italic; }
+        
+        .text-center { text-align: center; }
+        .text-white { color: white; }
+        
+        .p-2 { padding: 0.5rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .p-8 { padding: 2rem; }
+        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+        .pb-2 { padding-bottom: 0.5rem; }
+        
+        .m-0 { margin: 0; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mt-4 { margin-top: 1rem; }
+        
+        .flex { display: flex; }
+        .grid { display: grid; }
+        .block { display: block; }
+        .inline-flex { display: inline-flex; }
+        
+        .flex-wrap { flex-wrap: wrap; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+        .items-start { align-items: flex-start; }
+        .items-center { align-items: center; }
+        .space-x-2 > * + * { margin-left: 0.5rem; }
+        .space-x-4 > * + * { margin-left: 1rem; }
+        .space-x-6 > * + * { margin-left: 1.5rem; }
+        .space-y-1 > * + * { margin-top: 0.25rem; }
+        .space-y-6 > * + * { margin-top: 1.5rem; }
+        
+        .md\\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .gap-2 { gap: 0.5rem; }
+        .gap-6 { gap: 1.5rem; }
+        
+        .border { border-width: 1px; }
+        .border-b-2 { border-bottom-width: 2px; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .rounded-full { border-radius: 9999px; }
+        
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        
+        .opacity-90 { opacity: 0.9; }
+        
+        .max-w-3xl { max-width: 48rem; }
+        .max-w-4xl { max-width: 56rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        
+        .overflow-hidden { overflow: hidden; }
+        
+        /* List styles */
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            padding-left: 0;
+        }
+        
+        li {
+            display: list-item;
+            list-style-type: disc;
+            margin-bottom: 4px;
+        }
+        
+        /* Links */
         a {
             text-decoration: none;
             transition: all 0.3s ease;
@@ -86,7 +169,7 @@ const extractCompleteHTML = (element: HTMLElement, fullName: string): string => 
         
         /* Responsive adjustments */
         @media (max-width: 768px) {
-            .grid {
+            .md\\:grid-cols-2 {
                 grid-template-columns: 1fr !important;
             }
             
@@ -128,6 +211,12 @@ const extractCompleteHTML = (element: HTMLElement, fullName: string): string => 
                 box-shadow: none !important;
             }
         }
+        
+        /* Extracted styles from the application */
+        ${allStyles}
+        
+        /* Inline styles from the preview */
+        ${inlineStyles}
     </style>
 </head>
 <body>
@@ -196,22 +285,22 @@ const extractInlineStyles = (element: HTMLElement): string => {
   let styles = '';
   
   // Function to recursively extract styles
-  const extractStyles = (el: Element, selector: string = '') => {
-    if (el.nodeType === Node.ELEMENT_NODE) {
+  const extractStyles = (el: Element, depth: number = 0) => {
+    if (el.nodeType === Node.ELEMENT_NODE && depth < 10) { // Prevent infinite recursion
       const htmlEl = el as HTMLElement;
       
       // Get computed styles
       const computedStyle = window.getComputedStyle(htmlEl);
       
-      // Create a unique selector for this element
+      // Create a selector for this element
       let elementSelector = htmlEl.tagName.toLowerCase();
       
       if (htmlEl.id) {
         elementSelector = `#${htmlEl.id}`;
       } else if (htmlEl.className) {
-        const classes = htmlEl.className.split(' ').filter(c => c.trim());
+        const classes = htmlEl.className.split(' ').filter(c => c.trim() && !c.includes(':'));
         if (classes.length > 0) {
-          elementSelector = `.${classes.join('.')}`;
+          elementSelector = `.${classes.slice(0, 3).join('.')}`;
         }
       }
       
@@ -224,26 +313,23 @@ const extractInlineStyles = (element: HTMLElement): string => {
         'font-size',
         'font-weight',
         'line-height',
-        'margin',
-        'padding',
+        'text-align',
         'border',
         'border-radius',
+        'padding',
+        'margin',
         'display',
         'flex-direction',
         'justify-content',
         'align-items',
         'grid-template-columns',
-        'gap',
-        'text-align',
-        'opacity',
-        'transform',
-        'transition'
+        'gap'
       ];
       
       let elementStyles = '';
       importantStyles.forEach(prop => {
         const value = computedStyle.getPropertyValue(prop);
-        if (value && value !== 'initial' && value !== 'normal') {
+        if (value && value !== 'initial' && value !== 'normal' && value !== 'auto') {
           elementStyles += `${prop}: ${value}; `;
         }
       });
@@ -252,10 +338,12 @@ const extractInlineStyles = (element: HTMLElement): string => {
         styles += `${elementSelector} { ${elementStyles} }\n`;
       }
       
-      // Process children
-      Array.from(htmlEl.children).forEach((child, index) => {
-        extractStyles(child, `${elementSelector} > *:nth-child(${index + 1})`);
-      });
+      // Process children (limit depth to prevent performance issues)
+      if (depth < 5) {
+        Array.from(htmlEl.children).forEach(child => {
+          extractStyles(child, depth + 1);
+        });
+      }
     }
   };
   
@@ -263,15 +351,20 @@ const extractInlineStyles = (element: HTMLElement): string => {
   return styles;
 };
 
-// Legacy function for backward compatibility (now just calls the new function)
+// Legacy function for backward compatibility
 export const generatePortfolioHTML = (data: ResumeData, templateId: string): string => {
-  // This function is kept for backward compatibility but should not be used
-  // The new approach extracts HTML directly from the preview
   console.warn('generatePortfolioHTML is deprecated. Use downloadPortfolioFromPreview instead.');
   return '';
 };
 
 export const downloadPortfolioHTML = (data: ResumeData, templateId: string): void => {
-  // This function is kept for backward compatibility but should not be used
   console.warn('downloadPortfolioHTML is deprecated. Use downloadPortfolioFromPreview instead.');
+  
+  // Fallback: try to find the portfolio preview element and use the new method
+  const portfolioPreview = document.querySelector('[data-portfolio-preview]') as HTMLElement;
+  if (portfolioPreview) {
+    downloadPortfolioFromPreview(portfolioPreview, data.personalInfo.fullName);
+  } else {
+    alert('Portfolio preview not available. Please try again from the preview section.');
+  }
 };

@@ -39,7 +39,12 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
 
   const handleDownloadPortfolio = () => {
     if (portfolioPreviewRef.current) {
-      downloadPortfolioFromPreview(portfolioPreviewRef.current, data.personalInfo.fullName);
+      try {
+        downloadPortfolioFromPreview(portfolioPreviewRef.current, data.personalInfo.fullName);
+      } catch (error) {
+        console.error('Failed to download portfolio:', error);
+        alert('Failed to download portfolio. Please try again.');
+      }
     } else {
       alert('Portfolio preview not available. Please try again.');
     }
@@ -527,6 +532,7 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
           ) : (
             <div 
               ref={portfolioPreviewRef}
+              data-portfolio-preview="true"
               style={{ fontFamily: currentCustomization.fonts.bodyText }}
             >
               <div 
