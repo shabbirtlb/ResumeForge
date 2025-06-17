@@ -279,6 +279,7 @@ function AppContent() {
         return (
           <CustomizationForm
             data={resumeData.customization}
+            resumeData={resumeData}
             onChange={(customization) => setResumeData({ ...resumeData, customization })}
             onNext={handleNext}
             onBack={handleBack}
