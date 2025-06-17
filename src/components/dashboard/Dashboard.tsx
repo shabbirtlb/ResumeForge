@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useResumeStorage } from '../../hooks/useResumeStorage';
 import { generateResumePDF } from '../../utils/pdfGenerator';
 import { downloadPortfolioHTML } from '../../utils/portfolioGenerator';
+import { PreviewModal } from './PreviewModal';
 import type { SavedResume, ResumeData } from '../../types';
 
 interface DashboardProps {
@@ -19,6 +20,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
   const [filterBy, setFilterBy] = useState<'all' | 'recent' | 'templates'>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [downloadingPDF, setDownloadingPDF] = useState<string | null>(null);
+  const [previewResume, setPreviewResume] = useState<SavedResume | null>(null);
 
   useEffect(() => {
     loadSavedResumes();
@@ -82,47 +84,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
   };
 
   const handlePreviewResume = (resume: SavedResume) => {
-    // Create a temporary preview window
-    const previewWindow = window.open('', '_blank', 'width=800,height=600,scrollbars=yes');
-    if (previewWindow) {
-      previewWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>${resume.title} - Preview</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            .header { text-align: center; margin-bottom: 30px; }
-            .section { margin-bottom: 25px; }
-            .section-title { font-size: 18px; font-weight: bold; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 15px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>${resume.data.personalInfo.fullName}</h1>
-            <p>${resume.data.personalInfo.email} | ${resume.data.personalInfo.phone} | ${resume.data.personalInfo.location}</p>
-          </div>
-          ${resume.data.personalInfo.summary ? `
-            <div class="section">
-              <div class="section-title">Professional Summary</div>
-              <p>${resume.data.personalInfo.summary}</p>
-            </div>
-          ` : ''}
-          <div class="section">
-            <div class="section-title">Experience</div>
-            ${resume.data.experience.map(exp => `
-              <div style="margin-bottom: 15px;">
-                <h3>${exp.position} at ${exp.company}</h3>
-                <p><em>${exp.startDate} - ${exp.current ? 'Present' : exp.endDate}</em></p>
-                <p>${exp.description}</p>
-              </div>
-            `).join('')}
-          </div>
-        </body>
-        </html>
-      `);
-      previewWindow.document.close();
-    }
+    setPreviewResume(resume);
   };
 
   const filteredResumes = savedResumes.filter(resume => {
@@ -376,6 +338,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume 
           </div>
         )}
       </main>
+
+      {/* Preview Modal */}
+      {previewResume && (
+        <PreviewModal
+          resume={previewResume}
+          onClose={() => setPreviewResume(null)}
+        />
+      )}
     </div>
   );
 };
