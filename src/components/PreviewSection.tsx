@@ -17,6 +17,7 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState<'resume' | 'portfolio'>('resume');
+  const [activeSkillType, setActiveSkillType] = useState<'Technical' | 'Soft' | 'Language' | 'Tool'>('Technical');
 
   const handleDownloadPDF = async () => {
     try {
@@ -373,6 +374,21 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
     const safeBorders = data.customization.portfolio.borders || { borderRadius: '8px' };
     const safeSpacing = data.customization.portfolio.spacing || { sectionSpacing: '2rem', paragraphSpacing: '1rem', lineHeight: '1.6' };
     
+    // Get skills by category for the toggle functionality
+    const skillCategories = ['Technical', 'Soft', 'Language', 'Tool'] as const;
+    const availableCategories = skillCategories.filter(category => 
+      data.skills.some(skill => skill.category === category)
+    );
+    
+    // If no skills in current active category, switch to first available
+    React.useEffect(() => {
+      if (availableCategories.length > 0 && !availableCategories.includes(activeSkillType)) {
+        setActiveSkillType(availableCategories[0]);
+      }
+    }, [data.skills]);
+    
+    const currentSkills = data.skills.filter(skill => skill.category === activeSkillType);
+    
     return (
       <div className="bg-white rounded-lg border border-gray-300 overflow-hidden max-h-[600px] overflow-y-auto">
         {/* Hero Section */}
@@ -575,7 +591,7 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
           </div>
         </div>
 
-        {/* Skills Section */}
+        {/* Skills Section with Toggle */}
         <div 
           className="p-8"
           style={{ backgroundColor: portfolioColors.pageBackground }}
@@ -590,56 +606,96 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
             Skills & Expertise
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {(data.skills.length > 0 ? 
-              ['Technical', 'Soft'].map(category => ({
-                category,
-                skills: data.skills.filter(s => s.category === category).slice(0, 5)
-              })) : 
-              [
-                { category: 'Technical', skills: [{ name: 'React' }, { name: 'Node.js' }, { name: 'Python' }, { name: 'TypeScript' }, { name: 'AWS' }] },
-                { category: 'Soft', skills: [{ name: 'Leadership' }, { name: 'Communication' }, { name: 'Problem Solving' }, { name: 'Teamwork' }, { name: 'Creativity' }] }
-              ]
-            ).map(({ category, skills }) => (
-              <div key={category}>
-                <h3 
-                  className="font-bold text-lg mb-4"
-                  style={{ 
-                    color: portfolioColors.sectionHeaderText,
-                    fontFamily: portfolioFonts.sectionHeaders
-                  }}
-                >
-                  {category} Skills
-                </h3>
-                <div className="space-y-3">
-                  {skills.map((skill, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <span 
-                        className="flex-1 text-sm font-medium"
-                        style={{ 
-                          color: portfolioColors.bodyText,
-                          fontFamily: portfolioFonts.bodyText
-                        }}
-                      >
-                        {skill.name}
-                      </span>
+          {/* Skill Category Toggle */}
+          {availableCategories.length > 1 && (
+            <div className="flex justify-center mb-8">
+              <div 
+                className="inline-flex rounded-lg p-1"
+                style={{ backgroundColor: portfolioColors.sectionBackground }}
+              >
+                {availableCategories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setActiveSkillType(category)}
+                    className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+                      activeSkillType === category
+                        ? 'shadow-sm transform scale-105'
+                        : 'hover:scale-105'
+                    }`}
+                    style={{
+                      backgroundColor: activeSkillType === category 
+                        ? portfolioColors.primaryAccent 
+                        : 'transparent',
+                      color: activeSkillType === category 
+                        ? '#ffffff' 
+                        : portfolioColors.bodyText,
+                      fontFamily: portfolioFonts.bodyText
+                    }}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Skills Display */}
+          <div className="max-w-4xl mx-auto">
+            {currentSkills.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {currentSkills.map((skill, index) => (
+                  <div key={index} className="flex items-center space-x-4">
+                    <span 
+                      className="flex-1 text-lg font-medium"
+                      style={{ 
+                        color: portfolioColors.bodyText,
+                        fontFamily: portfolioFonts.bodyText
+                      }}
+                    >
+                      {skill.name}
+                    </span>
+                    <div className="flex-1">
                       <div 
-                        className="flex-1 h-2 rounded-full"
+                        className="h-3 rounded-full overflow-hidden"
                         style={{ backgroundColor: portfolioColors.borderColor }}
                       >
                         <div 
-                          className="h-full rounded-full transition-all duration-1000"
+                          className="h-full rounded-full transition-all duration-1000 ease-out"
                           style={{ 
                             backgroundColor: portfolioColors.timelineAccent || portfolioColors.primaryAccent,
-                            width: `${Math.random() * 30 + 70}%`
+                            width: skill.level === 'Expert' ? '95%' : 
+                                   skill.level === 'Advanced' ? '80%' : 
+                                   skill.level === 'Intermediate' ? '65%' : '40%'
                           }}
                         />
                       </div>
+                      <div className="flex justify-between text-xs mt-1">
+                        <span style={{ color: portfolioColors.bodyText }}>
+                          {skill.level}
+                        </span>
+                        <span style={{ color: portfolioColors.bodyText }}>
+                          {skill.level === 'Expert' ? '95%' : 
+                           skill.level === 'Advanced' ? '80%' : 
+                           skill.level === 'Intermediate' ? '65%' : '40%'}
+                        </span>
+                      </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <div className="text-center py-8">
+                <p 
+                  className="text-lg"
+                  style={{ 
+                    color: portfolioColors.bodyText,
+                    fontFamily: portfolioFonts.bodyText
+                  }}
+                >
+                  No {activeSkillType.toLowerCase()} skills added yet.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
