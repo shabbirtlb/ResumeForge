@@ -164,6 +164,70 @@ const generateGradientCSS = (gradient: GradientSettings): string => {
   }
 };
 
+// Helper functions to get sample data with real user data fallbacks
+const getSampleExperience = (resumeData: ResumeData) => {
+  if (resumeData.experience.length > 0) {
+    const exp = resumeData.experience[0];
+    return {
+      position: exp.position,
+      company: exp.company,
+      startDate: exp.startDate,
+      endDate: exp.current ? 'Present' : exp.endDate,
+      description: exp.description
+    };
+  }
+  return {
+    position: 'Software Engineer',
+    company: 'Tech Company Inc.',
+    startDate: '2020-01',
+    endDate: 'Present',
+    description: 'Developed and maintained web applications using modern technologies.'
+  };
+};
+
+const getSampleProject = (resumeData: ResumeData) => {
+  if (resumeData.projects.length > 0) {
+    const project = resumeData.projects[0];
+    return {
+      name: project.name,
+      description: project.description,
+      technologies: project.technologies.slice(0, 3)
+    };
+  }
+  return {
+    name: 'Portfolio Website',
+    description: 'A responsive portfolio website built with modern web technologies.',
+    technologies: ['React', 'TypeScript', 'Tailwind CSS']
+  };
+};
+
+const getSampleSkills = (resumeData: ResumeData) => {
+  if (resumeData.skills.length > 0) {
+    return resumeData.skills.slice(0, 4).map(skill => skill.name);
+  }
+  return ['JavaScript', 'React', 'Node.js', 'Python'];
+};
+
+const getSampleEducation = (resumeData: ResumeData) => {
+  if (resumeData.education.length > 0) {
+    const edu = resumeData.education[0];
+    return {
+      degree: edu.degree,
+      field: edu.field,
+      institution: edu.institution,
+      startDate: edu.startDate,
+      endDate: edu.endDate
+    };
+  }
+  return {
+    degree: "Bachelor's Degree",
+    field: 'Computer Science',
+    institution: 'University of Technology',
+    startDate: '2016-09',
+    endDate: '2020-05'
+  };
+};
+
 export const CustomizationForm: React.FC<CustomizationFormProps> = ({ data, resumeData, onChange, onNext, onBack }) => {
   const [activeTab, setActiveTab] = useState<'resume' | 'portfolio'>('resume');
   const [activeSection, setActiveSection] = useState<'typography' | 'colors' | 'layout'>('typography');
@@ -483,69 +547,247 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
     );
   };
 
+  // Render sections in the same order as PreviewSection
+  const renderSectionByOrder = (sections: string[], type: 'resume' | 'portfolio') => {
+    const customization = type === 'resume' ? data.resume : data.portfolio;
+    const safeBorders = customization.borders || defaultBorders;
+    const safeSpacing = customization.spacing || defaultSpacing;
+    
+    return sections.map(sectionId => {
+      switch (sectionId) {
+        case 'experience':
+          return resumeData.experience.length > 0 ? (
+            <div key="experience" className="mb-6">
+              <h2 
+                className="text-lg font-bold mb-3 border-b-2 pb-1"
+                style={{ 
+                  color: customization.colors.sectionHeaderText,
+                  fontFamily: customization.fonts.sectionHeaders,
+                  borderColor: customization.colors.primaryAccent,
+                  marginBottom: safeSpacing.paragraphSpacing
+                }}
+              >
+                Experience
+              </h2>
+              <div style={{ marginBottom: safeSpacing.paragraphSpacing }}>
+                {(() => {
+                  const exp = getSampleExperience(resumeData);
+                  return (
+                    <div>
+                      <div className="flex justify-between items-start mb-1">
+                        <div>
+                          <h3 
+                            className="font-semibold"
+                            style={{ 
+                              color: customization.colors.subHeaderText,
+                              fontFamily: customization.fonts.subHeaders
+                            }}
+                          >
+                            {exp.position}
+                          </h3>
+                          <p 
+                            className="italic text-sm"
+                            style={{ 
+                              color: customization.colors.bodyText,
+                              fontFamily: customization.fonts.bodyText
+                            }}
+                          >
+                            {exp.company}
+                          </p>
+                        </div>
+                        <span 
+                          className="text-xs"
+                          style={{ 
+                            color: customization.colors.dateText,
+                            fontFamily: customization.fonts.dates
+                          }}
+                        >
+                          {exp.startDate} - {exp.endDate}
+                        </span>
+                      </div>
+                      <p 
+                        className="text-sm"
+                        style={{ 
+                          color: customization.colors.bodyText,
+                          lineHeight: safeSpacing.lineHeight
+                        }}
+                      >
+                        {exp.description}
+                      </p>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          ) : null;
+
+        case 'projects':
+          return resumeData.projects.length > 0 ? (
+            <div key="projects" className="mb-6">
+              <h2 
+                className="text-lg font-bold mb-3 border-b-2 pb-1"
+                style={{ 
+                  color: customization.colors.sectionHeaderText,
+                  fontFamily: customization.fonts.sectionHeaders,
+                  borderColor: customization.colors.primaryAccent,
+                  marginBottom: safeSpacing.paragraphSpacing
+                }}
+              >
+                Projects
+              </h2>
+              <div 
+                className="border rounded p-3"
+                style={{ 
+                  borderColor: customization.colors.borderColor,
+                  backgroundColor: customization.colors.cardBackground,
+                  borderRadius: safeBorders.borderRadius
+                }}
+              >
+                {(() => {
+                  const project = getSampleProject(resumeData);
+                  return (
+                    <>
+                      <h3 
+                        className="font-semibold mb-1"
+                        style={{ 
+                          color: customization.colors.subHeaderText,
+                          fontFamily: customization.fonts.subHeaders
+                        }}
+                      >
+                        {project.name}
+                      </h3>
+                      <p 
+                        className="text-sm mb-2"
+                        style={{ 
+                          color: customization.colors.bodyText,
+                          lineHeight: safeSpacing.lineHeight
+                        }}
+                      >
+                        {project.description}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {project.technologies.map((tech) => (
+                          <span
+                            key={tech}
+                            className="px-2 py-1 rounded-full text-xs"
+                            style={{ 
+                              backgroundColor: customization.colors.primaryAccent + '20',
+                              color: customization.colors.primaryAccent
+                            }}
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          ) : null;
+
+        case 'skills':
+          return resumeData.skills.length > 0 ? (
+            <div key="skills" className="mb-6">
+              <h2 
+                className="text-lg font-bold mb-3 border-b-2 pb-1"
+                style={{ 
+                  color: customization.colors.sectionHeaderText,
+                  fontFamily: customization.fonts.sectionHeaders,
+                  borderColor: customization.colors.primaryAccent,
+                  marginBottom: safeSpacing.paragraphSpacing
+                }}
+              >
+                Skills
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {getSampleSkills(resumeData).map((skill, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1 rounded-full text-sm"
+                    style={{ 
+                      backgroundColor: customization.colors.sectionBackground,
+                      color: customization.colors.bodyText,
+                      border: `1px solid ${customization.colors.borderColor}`,
+                      borderRadius: safeBorders.borderRadius
+                    }}
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null;
+
+        case 'education':
+          return resumeData.education.length > 0 ? (
+            <div key="education" className="mb-6">
+              <h2 
+                className="text-lg font-bold mb-3 border-b-2 pb-1"
+                style={{ 
+                  color: customization.colors.sectionHeaderText,
+                  fontFamily: customization.fonts.sectionHeaders,
+                  borderColor: customization.colors.primaryAccent,
+                  marginBottom: safeSpacing.paragraphSpacing
+                }}
+              >
+                Education
+              </h2>
+              <div style={{ marginBottom: safeSpacing.paragraphSpacing }}>
+                {(() => {
+                  const edu = getSampleEducation(resumeData);
+                  return (
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 
+                          className="font-semibold"
+                          style={{ 
+                            color: customization.colors.subHeaderText,
+                            fontFamily: customization.fonts.subHeaders
+                          }}
+                        >
+                          {edu.degree} in {edu.field}
+                        </h3>
+                        <p 
+                          className="italic text-sm"
+                          style={{ 
+                            color: customization.colors.bodyText,
+                            fontFamily: customization.fonts.bodyText
+                          }}
+                        >
+                          {edu.institution}
+                        </p>
+                      </div>
+                      <span 
+                        className="text-xs"
+                        style={{ 
+                          color: customization.colors.dateText,
+                          fontFamily: customization.fonts.dates
+                        }}
+                      >
+                        {edu.startDate} - {edu.endDate}
+                      </span>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          ) : null;
+
+        default:
+          return null;
+      }
+    }).filter(Boolean);
+  };
+
   const currentSettings = activeTab === 'resume' ? data.resume : data.portfolio;
   const safeSpacing = currentSettings.spacing || defaultSpacing;
   const safeBorders = currentSettings.borders || defaultBorders;
   const safeLayout = (activeTab === 'portfolio' ? data.portfolio.layout : null) || defaultLayout;
 
-  // Helper function to get sample data with fallbacks
-  const getSampleExperience = () => {
-    if (resumeData.experience.length > 0) {
-      return resumeData.experience[0];
-    }
-    return {
-      id: 'sample',
-      position: 'Software Engineer',
-      company: 'Tech Company Inc.',
-      startDate: '2020-01',
-      endDate: '2023-12',
-      current: false,
-      description: 'Developed and maintained web applications using modern technologies.',
-      achievements: ['Improved application performance by 40%', 'Led a team of 3 developers']
-    };
-  };
-
-  const getSampleProject = () => {
-    if (resumeData.projects.length > 0) {
-      return resumeData.projects[0];
-    }
-    return {
-      id: 'sample',
-      name: 'Portfolio Website',
-      description: 'A responsive portfolio website built with React and TypeScript.',
-      technologies: ['React', 'TypeScript', 'Tailwind CSS'],
-      liveUrl: 'https://example.com',
-      githubUrl: 'https://github.com/user/project'
-    };
-  };
-
-  const getSampleSkills = () => {
-    if (resumeData.skills.length > 0) {
-      return resumeData.skills.slice(0, 4);
-    }
-    return [
-      { name: 'JavaScript', level: 'Advanced' as const, category: 'Technical' as const },
-      { name: 'React', level: 'Advanced' as const, category: 'Technical' as const },
-      { name: 'Leadership', level: 'Intermediate' as const, category: 'Soft' as const },
-      { name: 'English', level: 'Expert' as const, category: 'Language' as const }
-    ];
-  };
-
-  const getSampleEducation = () => {
-    if (resumeData.education.length > 0) {
-      return resumeData.education[0];
-    }
-    return {
-      id: 'sample',
-      institution: 'University of Technology',
-      degree: "Bachelor's Degree",
-      field: 'Computer Science',
-      startDate: '2016-09',
-      endDate: '2020-05',
-      gpa: '3.8/4.0',
-      honors: 'Magna Cum Laude'
-    };
-  };
+  // Default section orders
+  const defaultResumeOrder = ['experience', 'education', 'skills', 'projects'];
+  const defaultPortfolioOrder = ['projects', 'experience', 'skills', 'education'];
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -1058,13 +1300,13 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
                         fontFamily: currentSettings.fonts.mainHeader
                       }}
                     >
-                      {resumeData.personalInfo.fullName || 'Your Name'}
+                      {resumeData.personalInfo.fullName || 'John Doe'}
                     </h1>
                     <p style={{ 
                       color: currentSettings.colors.contactText,
                       fontFamily: currentSettings.fonts.contactInfo
                     }}>
-                      {resumeData.personalInfo.email || 'your@email.com'} | {resumeData.personalInfo.phone || '(555) 123-4567'}
+                      {resumeData.personalInfo.email || 'john@example.com'} | {resumeData.personalInfo.phone || '(555) 123-4567'}
                     </p>
                   </div>
                   
@@ -1076,141 +1318,33 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
                       marginBottom: safeSpacing.sectionSpacing
                     }}
                   >
-                    <h2 
-                      className="text-lg font-semibold mb-2 pb-1 border-b-2"
-                      style={{ 
-                        color: currentSettings.colors.sectionHeaderText,
-                        fontFamily: currentSettings.fonts.sectionHeaders,
-                        borderColor: currentSettings.colors.primaryAccent,
-                        marginBottom: safeSpacing.paragraphSpacing
-                      }}
-                    >
-                      Experience
-                    </h2>
-                    <div className="space-y-2">
-                      {(() => {
-                        const exp = getSampleExperience();
-                        return (
-                          <>
-                            <h3 
-                              className="font-medium"
-                              style={{ 
-                                color: currentSettings.colors.subHeaderText,
-                                fontFamily: currentSettings.fonts.subHeaders
-                              }}
-                            >
-                              {exp.position}
-                            </h3>
-                            <p 
-                              className="text-sm"
-                              style={{ 
-                                color: currentSettings.colors.dateText,
-                                fontFamily: currentSettings.fonts.dates
-                              }}
-                            >
-                              {exp.company} • {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
-                            </p>
-                            <p 
-                              className="text-sm"
-                              style={{ 
-                                color: currentSettings.colors.bodyText,
-                                marginBottom: safeSpacing.paragraphSpacing
-                              }}
-                            >
-                              {exp.description}
-                            </p>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  </div>
-
-                  {/* Projects Section */}
-                  <div 
-                    className="p-4 rounded-lg"
-                    style={{ 
-                      backgroundColor: currentSettings.colors.cardBackground,
-                      borderRadius: safeBorders.borderRadius,
-                      border: `1px solid ${currentSettings.colors.borderColor}`
-                    }}
-                  >
-                    <h2 
-                      className="text-lg font-semibold mb-2"
-                      style={{ 
-                        color: currentSettings.colors.sectionHeaderText,
-                        fontFamily: currentSettings.fonts.sectionHeaders
-                      }}
-                    >
-                      Projects
-                    </h2>
-                    {(() => {
-                      const project = getSampleProject();
-                      return (
-                        <>
-                          <h3 
-                            className="font-medium mb-1"
-                            style={{ 
-                              color: currentSettings.colors.subHeaderText,
-                              fontFamily: currentSettings.fonts.subHeaders
-                            }}
-                          >
-                            {project.name}
-                          </h3>
-                          <p 
-                            className="text-sm mb-2"
-                            style={{ 
-                              color: currentSettings.colors.bodyText,
-                              lineHeight: safeSpacing.lineHeight
-                            }}
-                          >
-                            {project.description}
-                          </p>
-                          <div className="flex flex-wrap gap-1">
-                            {project.technologies.slice(0, 3).map((tech) => (
-                              <span
-                                key={tech}
-                                className="px-2 py-1 rounded-full text-xs"
-                                style={{ 
-                                  backgroundColor: currentSettings.colors.primaryAccent + '20',
-                                  color: currentSettings.colors.primaryAccent
-                                }}
-                              >
-                                {tech}
-                              </span>
-                            ))}
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
-
-                  {/* Skills Section */}
-                  <div>
-                    <h2 
-                      className="text-lg font-semibold mb-2"
-                      style={{ 
-                        color: currentSettings.colors.sectionHeaderText,
-                        fontFamily: currentSettings.fonts.sectionHeaders
-                      }}
-                    >
-                      Skills
-                    </h2>
-                    <div className="flex flex-wrap gap-2">
-                      {getSampleSkills().map((skill, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 rounded-full text-sm"
+                    {resumeData.personalInfo.summary && (
+                      <div className="mb-4">
+                        <h2 
+                          className="text-lg font-semibold mb-2 pb-1 border-b-2"
                           style={{ 
-                            backgroundColor: currentSettings.colors.sectionBackground,
-                            color: currentSettings.colors.bodyText,
-                            border: `1px solid ${currentSettings.colors.borderColor}`,
-                            borderRadius: safeBorders.borderRadius
+                            color: currentSettings.colors.sectionHeaderText,
+                            fontFamily: currentSettings.fonts.sectionHeaders,
+                            borderColor: currentSettings.colors.primaryAccent,
+                            marginBottom: safeSpacing.paragraphSpacing
                           }}
                         >
-                          {skill.name}
-                        </span>
-                      ))}
-                    </div>
+                          Summary
+                        </h2>
+                        <p 
+                          className="text-sm"
+                          style={{ 
+                            color: currentSettings.colors.bodyText,
+                            lineHeight: safeSpacing.lineHeight
+                          }}
+                        >
+                          {resumeData.personalInfo.summary}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Render sections using the same logic as PreviewSection */}
+                    {renderSectionByOrder(resumeData.sectionOrder?.resume || defaultResumeOrder, 'resume')}
                   </div>
                 </div>
               ) : (
@@ -1229,10 +1363,10 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
                         fontFamily: currentSettings.fonts.mainHeader
                       }}
                     >
-                      {resumeData.personalInfo.fullName || 'Your Name'}
+                      {resumeData.personalInfo.fullName || 'John Doe'}
                     </h1>
                     <p className="opacity-90">
-                      {resumeData.personalInfo.summary || 'Professional Portfolio'}
+                      {resumeData.personalInfo.summary || 'Full Stack Developer'}
                     </p>
                   </div>
                   
@@ -1240,87 +1374,34 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
                     className="p-6"
                     style={{ backgroundColor: currentSettings.colors.pageBackground }}
                   >
-                    <div 
-                      className="p-4 rounded-lg mb-4"
-                      style={{ 
-                        backgroundColor: currentSettings.colors.cardBackground,
-                        borderRadius: safeBorders.borderRadius
-                      }}
-                    >
-                      <h2 
-                        className="text-lg font-semibold mb-2"
+                    {resumeData.personalInfo.summary && (
+                      <div 
+                        className="p-4 rounded-lg mb-4"
                         style={{ 
-                          color: currentSettings.colors.sectionHeaderText,
-                          fontFamily: currentSettings.fonts.sectionHeaders
+                          backgroundColor: currentSettings.colors.cardBackground,
+                          borderRadius: safeBorders.borderRadius
                         }}
                       >
-                        About Me
-                      </h2>
-                      <p style={{ 
-                        color: currentSettings.colors.bodyText,
-                        lineHeight: safeSpacing.lineHeight
-                      }}>
-                        {resumeData.personalInfo.summary || 'Passionate developer with expertise in modern web technologies.'}
-                      </p>
-                    </div>
-
-                    {/* Featured Project */}
-                    <div 
-                      className="p-4 rounded-lg"
-                      style={{ 
-                        backgroundColor: currentSettings.colors.sectionBackground,
-                        borderRadius: safeBorders.borderRadius
-                      }}
-                    >
-                      <h2 
-                        className="text-lg font-semibold mb-2"
-                        style={{ 
-                          color: currentSettings.colors.sectionHeaderText,
-                          fontFamily: currentSettings.fonts.sectionHeaders
-                        }}
-                      >
-                        Featured Project
-                      </h2>
-                      {(() => {
-                        const project = getSampleProject();
-                        return (
-                          <>
-                            <h3 
-                              className="font-medium mb-1"
-                              style={{ 
-                                color: currentSettings.colors.subHeaderText,
-                                fontFamily: currentSettings.fonts.subHeaders
-                              }}
-                            >
-                              {project.name}
-                            </h3>
-                            <p 
-                              className="text-sm mb-2"
-                              style={{ 
-                                color: currentSettings.colors.bodyText,
-                                lineHeight: safeSpacing.lineHeight
-                              }}
-                            >
-                              {project.description}
-                            </p>
-                            <div className="flex flex-wrap gap-1">
-                              {project.technologies.slice(0, 3).map((tech) => (
-                                <span
-                                  key={tech}
-                                  className="px-2 py-1 rounded-full text-xs"
-                                  style={{ 
-                                    backgroundColor: currentSettings.colors.primaryAccent + '20',
-                                    color: currentSettings.colors.primaryAccent
-                                  }}
-                                >
-                                  {tech}
-                                </span>
-                              ))}
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </div>
+                        <h2 
+                          className="text-lg font-semibold mb-2"
+                          style={{ 
+                            color: currentSettings.colors.sectionHeaderText,
+                            fontFamily: currentSettings.fonts.sectionHeaders
+                          }}
+                        >
+                          About Me
+                        </h2>
+                        <p style={{ 
+                          color: currentSettings.colors.bodyText,
+                          lineHeight: safeSpacing.lineHeight
+                        }}>
+                          {resumeData.personalInfo.summary}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Render sections using the same logic as PreviewSection */}
+                    {renderSectionByOrder(resumeData.sectionOrder?.portfolio || defaultPortfolioOrder, 'portfolio')}
                   </div>
                 </div>
               )}
