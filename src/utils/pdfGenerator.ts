@@ -2,30 +2,152 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import type { ResumeData } from '../types';
 
-export const generateResumePDF = async (resumeData: ResumeData, templateId: string): Promise<void> => {
+// New function to generate PDF from exact preview HTML
+export const generateResumePDFFromPreview = async (previewElement: HTMLElement, fullName: string): Promise<void> => {
   try {
-    // Create a temporary container for the PDF content
-    const pdfContainer = document.createElement('div');
-    pdfContainer.innerHTML = generatePDFHTML(resumeData);
+    // Clone the preview element to avoid modifying the original
+    const clonedElement = previewElement.cloneNode(true) as HTMLElement;
     
-    // Style the container for PDF generation
+    // Create a temporary container for PDF generation
+    const pdfContainer = document.createElement('div');
+    pdfContainer.appendChild(clonedElement);
+    
+    // Style the container for optimal PDF generation
     pdfContainer.style.position = 'fixed';
     pdfContainer.style.top = '-10000px';
     pdfContainer.style.left = '-10000px';
     pdfContainer.style.width = '794px'; // A4 width in pixels at 96 DPI
     pdfContainer.style.backgroundColor = 'white';
-    pdfContainer.style.padding = '0';
+    pdfContainer.style.padding = '40px';
     pdfContainer.style.margin = '0';
     pdfContainer.style.overflow = 'visible';
     pdfContainer.style.zIndex = '-1000';
+    pdfContainer.style.fontFamily = 'Arial, sans-serif';
     
+    // Apply additional styles to the cloned content
+    clonedElement.style.width = '100%';
+    clonedElement.style.maxWidth = 'none';
+    clonedElement.style.margin = '0';
+    clonedElement.style.padding = '0';
+    clonedElement.style.backgroundColor = 'white';
+    
+    // Ensure all fonts are loaded and styles are applied
+    const allStyles = Array.from(document.styleSheets)
+      .map(styleSheet => {
+        try {
+          return Array.from(styleSheet.cssRules)
+            .map(rule => rule.cssText)
+            .join('\n');
+        } catch (e) {
+          return '';
+        }
+      })
+      .join('\n');
+    
+    // Add styles to the container
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+      ${allStyles}
+      
+      /* PDF-specific optimizations */
+      * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      
+      /* Ensure proper bullet points */
+      ul {
+        list-style-type: disc !important;
+        margin-left: 20px !important;
+        padding-left: 0 !important;
+      }
+      
+      li {
+        display: list-item !important;
+        list-style-type: disc !important;
+        margin-bottom: 4px !important;
+      }
+      
+      /* Fix text alignment and spacing */
+      .text-center { text-align: center !important; }
+      .text-left { text-align: left !important; }
+      .text-right { text-align: right !important; }
+      
+      /* Ensure proper spacing */
+      .mb-2 { margin-bottom: 0.5rem !important; }
+      .mb-4 { margin-bottom: 1rem !important; }
+      .mb-8 { margin-bottom: 2rem !important; }
+      .space-y-1 > * + * { margin-top: 0.25rem !important; }
+      .space-y-6 > * + * { margin-top: 1.5rem !important; }
+      
+      /* Grid layouts for PDF */
+      .grid { display: grid !important; }
+      .md\\:grid-cols-2 { grid-template-columns: repeat(2, 1fr) !important; }
+      .gap-6 { gap: 1.5rem !important; }
+      .gap-2 { gap: 0.5rem !important; }
+      
+      /* Flexbox layouts */
+      .flex { display: flex !important; }
+      .flex-wrap { flex-wrap: wrap !important; }
+      .justify-between { justify-content: space-between !important; }
+      .justify-center { justify-content: center !important; }
+      .items-start { align-items: flex-start !important; }
+      .items-center { align-items: center !important; }
+      .space-x-4 > * + * { margin-left: 1rem !important; }
+      .space-x-6 > * + * { margin-left: 1.5rem !important; }
+      
+      /* Typography */
+      .text-4xl { font-size: 2.25rem !important; line-height: 2.5rem !important; }
+      .text-2xl { font-size: 1.5rem !important; line-height: 2rem !important; }
+      .text-lg { font-size: 1.125rem !important; line-height: 1.75rem !important; }
+      .text-sm { font-size: 0.875rem !important; line-height: 1.25rem !important; }
+      .text-xs { font-size: 0.75rem !important; line-height: 1rem !important; }
+      .font-bold { font-weight: 700 !important; }
+      .font-semibold { font-weight: 600 !important; }
+      .italic { font-style: italic !important; }
+      
+      /* Borders and backgrounds */
+      .border { border-width: 1px !important; }
+      .border-b-2 { border-bottom-width: 2px !important; }
+      .rounded-lg { border-radius: 0.5rem !important; }
+      .rounded-full { border-radius: 9999px !important; }
+      
+      /* Padding and margins */
+      .p-2 { padding: 0.5rem !important; }
+      .p-4 { padding: 1rem !important; }
+      .p-6 { padding: 1.5rem !important; }
+      .p-8 { padding: 2rem !important; }
+      .px-2 { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+      .px-3 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+      .py-1 { padding-top: 0.25rem !important; padding-bottom: 0.25rem !important; }
+      .pb-2 { padding-bottom: 0.5rem !important; }
+      
+      /* Remove any hover effects for PDF */
+      *:hover {
+        transform: none !important;
+        box-shadow: inherit !important;
+      }
+      
+      /* Ensure proper page breaks */
+      .mb-8 {
+        page-break-inside: avoid !important;
+      }
+    `;
+    
+    pdfContainer.appendChild(styleElement);
     document.body.appendChild(pdfContainer);
 
     // Wait for fonts and rendering
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
     // Calculate the actual content height
-    const contentHeight = Math.max(pdfContainer.scrollHeight, pdfContainer.offsetHeight, 1123);
+    const contentHeight = Math.max(
+      pdfContainer.scrollHeight, 
+      pdfContainer.offsetHeight, 
+      clonedElement.scrollHeight,
+      1123 // Minimum A4 height
+    );
     
     // Generate canvas from the container
     const canvas = await html2canvas(pdfContainer, {
@@ -37,15 +159,32 @@ export const generateResumePDF = async (resumeData: ResumeData, templateId: stri
       height: contentHeight,
       logging: false,
       removeContainer: false,
+      foreignObjectRendering: true,
       onclone: (clonedDoc) => {
         // Ensure all styles are properly applied in the cloned document
         const clonedContainer = clonedDoc.querySelector('div');
         if (clonedContainer) {
           clonedContainer.style.width = '794px';
           clonedContainer.style.backgroundColor = 'white';
-          clonedContainer.style.padding = '0';
+          clonedContainer.style.padding = '40px';
           clonedContainer.style.margin = '0';
+          clonedContainer.style.fontFamily = 'Arial, sans-serif';
         }
+        
+        // Fix bullet points in cloned document
+        const lists = clonedDoc.querySelectorAll('ul');
+        lists.forEach(list => {
+          list.style.listStyleType = 'disc';
+          list.style.marginLeft = '20px';
+          list.style.paddingLeft = '0';
+        });
+        
+        const listItems = clonedDoc.querySelectorAll('li');
+        listItems.forEach(item => {
+          item.style.display = 'list-item';
+          item.style.listStyleType = 'disc';
+          item.style.marginBottom = '4px';
+        });
       }
     });
 
@@ -53,7 +192,8 @@ export const generateResumePDF = async (resumeData: ResumeData, templateId: stri
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
-      format: 'a4'
+      format: 'a4',
+      compress: true
     });
 
     const imgData = canvas.toDataURL('image/png', 1.0);
@@ -85,10 +225,82 @@ export const generateResumePDF = async (resumeData: ResumeData, templateId: stri
     }
 
     // Download the PDF
-    const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`;
+    const fileName = `${fullName.replace(/\s+/g, '_')}_Resume.pdf`;
     pdf.save(fileName);
 
     // Clean up
+    document.body.removeChild(pdfContainer);
+  } catch (error) {
+    console.error('Error generating PDF from preview:', error);
+    throw new Error('Failed to generate PDF. Please try again.');
+  }
+};
+
+// Legacy function - kept for backward compatibility but now uses the new approach
+export const generateResumePDF = async (resumeData: ResumeData, templateId: string): Promise<void> => {
+  // This function is kept for backward compatibility but should not be used
+  // The new approach extracts HTML directly from the preview
+  console.warn('generateResumePDF is deprecated. Use generateResumePDFFromPreview instead.');
+  
+  // Fallback to old method if needed
+  try {
+    const pdfContainer = document.createElement('div');
+    pdfContainer.innerHTML = generatePDFHTML(resumeData);
+    
+    pdfContainer.style.position = 'fixed';
+    pdfContainer.style.top = '-10000px';
+    pdfContainer.style.left = '-10000px';
+    pdfContainer.style.width = '794px';
+    pdfContainer.style.backgroundColor = 'white';
+    pdfContainer.style.padding = '0';
+    pdfContainer.style.margin = '0';
+    pdfContainer.style.overflow = 'visible';
+    pdfContainer.style.zIndex = '-1000';
+    
+    document.body.appendChild(pdfContainer);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const contentHeight = Math.max(pdfContainer.scrollHeight, pdfContainer.offsetHeight, 1123);
+    
+    const canvas = await html2canvas(pdfContainer, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      width: 794,
+      height: contentHeight,
+      logging: false,
+      removeContainer: false,
+    });
+
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const imgData = canvas.toDataURL('image/png', 1.0);
+    const pdfWidth = 210;
+    const pdfHeight = 297;
+    const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+    
+    if (imgHeight <= pdfHeight) {
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+    } else {
+      let position = 0;
+      const pageHeight = pdfHeight;
+      
+      while (position < imgHeight) {
+        if (position > 0) {
+          pdf.addPage();
+        }
+        pdf.addImage(imgData, 'PNG', 0, -position, pdfWidth, imgHeight);
+        position += pageHeight;
+      }
+    }
+
+    const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`;
+    pdf.save(fileName);
     document.body.removeChild(pdfContainer);
   } catch (error) {
     console.error('Error generating PDF:', error);

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Download, Globe, FileText, Share2, Save, Upload } from 'lucide-react';
-import { generateResumePDF, exportToJSON } from '../utils/pdfGenerator';
+import { generateResumePDFFromPreview, exportToJSON } from '../utils/pdfGenerator';
 import { downloadPortfolioFromPreview } from '../utils/portfolioGenerator';
 import type { ResumeData } from '../types';
 
@@ -18,11 +18,17 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState<'resume' | 'portfolio'>('resume');
   const portfolioPreviewRef = useRef<HTMLDivElement>(null);
+  const resumePreviewRef = useRef<HTMLDivElement>(null);
 
   const handleDownloadPDF = async () => {
+    if (!resumePreviewRef.current) {
+      alert('Resume preview not available. Please try again.');
+      return;
+    }
+
     try {
       setIsGenerating(true);
-      await generateResumePDF(data, 'default');
+      await generateResumePDFFromPreview(resumePreviewRef.current, data.personalInfo.fullName);
     } catch (error) {
       console.error('Failed to generate PDF:', error);
       alert('Failed to generate PDF. Please try again.');
@@ -467,6 +473,7 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
         >
           {activeTab === 'resume' ? (
             <div 
+              ref={resumePreviewRef}
               className="p-8"
               style={{ 
                 backgroundColor: currentCustomization.colors.pageBackground,
