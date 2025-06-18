@@ -319,6 +319,7 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
     const gradient = data?.portfolio?.colors?.heroGradient ?? defaultGradientSettings;
     
     return (
+      <div className="h-[calc(100vh-120px)] overflow-y-auto px-4 py-6">
       <div className="space-y-4">
         <h4 className="font-medium text-gray-900">Hero Background Gradient</h4>
         
@@ -468,7 +469,6 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
           />
         </div>
-
         {/* Live Preview */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Preview</label>
@@ -480,7 +480,8 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
             }}
           />
         </div>
-      </div>
+      </div
+    </div>
     );
   };
 
