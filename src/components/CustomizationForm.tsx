@@ -167,7 +167,8 @@ const generateGradientCSS = (gradient: GradientSettings): string => {
 export const CustomizationForm: React.FC<CustomizationFormProps> = ({ data, resumeData, onChange, onNext, onBack }) => {
   const [activeTab, setActiveTab] = useState<'resume' | 'portfolio'>('resume');
   const [activeSection, setActiveSection] = useState<'typography' | 'colors' | 'layout'>('typography');
-  const [previewMode, setPreviewMode] = useState(false);
+  const [activeSkillType, setActiveSkillType] = useState<'Technical' | 'Soft' | 'Language' | 'Tool'>('Technical');
+  const [activePortfolioSection, setActivePortfolioSection] = useState('home');
 
 const updateResumeSettings = (
   field: string,
@@ -487,6 +488,622 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
   const safeSpacing = currentSettings.spacing || defaultSpacing;
   const safeBorders = currentSettings.borders || defaultBorders;
   const safeLayout = (activeTab === 'portfolio' ? data.portfolio.layout : null) || defaultLayout;
+
+  // Portfolio preview functions
+  const availableCategories = ['Technical', 'Soft', 'Language', 'Tool'].filter(category => 
+    resumeData.skills.some(skill => skill.category === category)
+  );
+
+  const scrollToSection = (sectionId: string) => {
+    setActivePortfolioSection(sectionId);
+    const element = document.getElementById(`portfolio-${sectionId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const renderPortfolioPreview = () => {
+    const portfolioColors = data.portfolio.colors;
+    const portfolioFonts = data.portfolio.fonts;
+    const portfolioLayout = data.portfolio.layout || { heroHeight: '80vh', animationSpeed: '0.3s' };
+    const safeBorders = data.portfolio.borders || { borderRadius: '8px' };
+    const safeSpacing = data.portfolio.spacing || { sectionSpacing: '2rem', paragraphSpacing: '1rem', lineHeight: '1.6' };
+    
+    const currentSkills = resumeData.skills.filter(skill => skill.category === activeSkillType);
+    
+    return (
+      <div className="bg-white rounded-lg border border-gray-300 overflow-hidden max-h-[600px] overflow-y-auto">
+        {/* Hero Section */}
+        <div 
+          id="portfolio-home"
+          className="relative p-8 text-center text-white min-h-[300px] flex flex-col justify-center"
+          style={{ 
+            background: portfolioColors.heroBackground || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            fontFamily: portfolioFonts.mainHeader
+          }}
+        >
+          {/* Animated Background Elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-10 left-10 w-4 h-4 bg-white/20 rounded-full animate-pulse"></div>
+            <div className="absolute top-20 right-16 w-6 h-6 bg-white/10 rounded-full animate-bounce"></div>
+            <div className="absolute bottom-16 left-20 w-3 h-3 bg-white/30 rounded-full animate-ping"></div>
+            <div className="absolute bottom-10 right-10 w-5 h-5 bg-white/15 rounded-full animate-pulse"></div>
+          </div>
+          
+          <div className="relative z-10">
+            <h1 
+              className="text-4xl font-bold mb-4"
+              style={{ 
+                color: portfolioColors.mainHeaderText || '#ffffff',
+                fontFamily: portfolioFonts.mainHeader
+              }}
+            >
+              {resumeData.personalInfo.fullName || 'John Doe'}
+            </h1>
+            <p className="text-xl opacity-90 mb-6">
+              {resumeData.personalInfo.summary || 'Full Stack Developer & Creative Problem Solver'}
+            </p>
+            
+            {/* Contact Info */}
+            <div className="flex flex-wrap justify-center gap-4 text-sm mb-6 opacity-90">
+              <span>{resumeData.personalInfo.email}</span>
+              <span>•</span>
+              <span>{resumeData.personalInfo.phone}</span>
+              <span>•</span>
+              <span>{resumeData.personalInfo.location}</span>
+            </div>
+            
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button 
+                onClick={() => scrollToSection('projects')}
+                className="px-8 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg hover:bg-white/30 transition-all duration-300 transform hover:scale-105"
+                style={{ color: portfolioColors.mainHeaderText || '#ffffff' }}
+              >
+                View My Work
+              </button>
+              <button 
+                onClick={() => scrollToSection('contact')}
+                className="px-8 py-3 bg-white text-gray-900 rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
+              >
+                Get In Touch
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div 
+          className="sticky top-0 z-20 backdrop-blur-md border-b"
+          style={{ 
+            backgroundColor: portfolioColors.navigationBackground || '#ffffff',
+            borderColor: portfolioColors.borderColor
+          }}
+        >
+          <div className="flex justify-center space-x-8 py-4 text-sm font-medium">
+            {[
+              { id: 'home', label: 'Home' },
+              { id: 'about', label: 'About' },
+              ...(resumeData.experience.length > 0 ? [{ id: 'experience', label: 'Experience' }] : []),
+              ...(resumeData.projects.length > 0 ? [{ id: 'projects', label: 'Projects' }] : []),
+              ...(resumeData.skills.length > 0 ? [{ id: 'skills', label: 'Skills' }] : []),
+              ...(resumeData.education.length > 0 ? [{ id: 'education', label: 'Education' }] : []),
+              { id: 'contact', label: 'Contact' }
+            ].map((item) => (
+              <button 
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className={`hover:scale-105 transition-transform duration-200 px-3 py-2 rounded ${
+                  activePortfolioSection === item.id ? 'bg-blue-100 text-blue-600' : ''
+                }`}
+                style={{ 
+                  color: activePortfolioSection === item.id ? portfolioColors.primaryAccent : portfolioColors.bodyText,
+                  fontFamily: portfolioFonts.bodyText
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* About Section */}
+        <div 
+          id="portfolio-about"
+          className="p-8"
+          style={{ backgroundColor: portfolioColors.pageBackground }}
+        >
+          <h2 
+            className="text-2xl font-bold text-center mb-6"
+            style={{ 
+              color: portfolioColors.sectionHeaderText,
+              fontFamily: portfolioFonts.sectionHeaders
+            }}
+          >
+            About Me
+          </h2>
+          <div 
+            className="max-w-3xl mx-auto text-center"
+            style={{ 
+              color: portfolioColors.bodyText,
+              fontFamily: portfolioFonts.bodyText,
+              lineHeight: safeSpacing.lineHeight
+            }}
+          >
+            <p>
+              {resumeData.personalInfo.summary || 'Passionate developer with expertise in modern web technologies and a commitment to creating exceptional user experiences. I love turning complex problems into simple, beautiful solutions.'}
+            </p>
+          </div>
+        </div>
+
+        {/* Featured Projects Section */}
+        {resumeData.projects.length > 0 && (
+          <div 
+            id="portfolio-projects"
+            className="p-8"
+            style={{ backgroundColor: portfolioColors.alternateBackground }}
+          >
+            <h2 
+              className="text-2xl font-bold text-center mb-8"
+              style={{ 
+                color: portfolioColors.sectionHeaderText,
+                fontFamily: portfolioFonts.sectionHeaders
+              }}
+            >
+              Featured Projects
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {(resumeData.projects.length > 0 ? resumeData.projects.slice(0, 3) : [
+                { name: 'E-Commerce Platform', description: 'Full-stack e-commerce solution with React and Node.js', technologies: ['React', 'Node.js', 'MongoDB'] },
+                { name: 'Task Management App', description: 'Collaborative task management with real-time updates', technologies: ['Vue.js', 'Express', 'PostgreSQL'] },
+                { name: 'Portfolio Website', description: 'Responsive portfolio with modern design', technologies: ['Next.js', 'Tailwind', 'Vercel'] }
+              ]).map((project, index) => (
+                <div 
+                  key={index}
+                  className="group rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                  style={{ 
+                    backgroundColor: portfolioColors.projectCardBackground || portfolioColors.cardBackground,
+                    borderRadius: safeBorders.borderRadius
+                  }}
+                >
+                  <div 
+                    className="h-40 flex items-center justify-center text-5xl"
+                    style={{ 
+                      background: `linear-gradient(135deg, ${portfolioColors.primaryAccent}20, ${portfolioColors.secondaryAccent}20)`
+                    }}
+                  >
+                    {index === 0 ? '🛒' : index === 1 ? '📋' : '💼'}
+                  </div>
+                  <div className="p-6">
+                    <h3 
+                      className="font-bold text-lg mb-2"
+                      style={{ 
+                        color: portfolioColors.subHeaderText,
+                        fontFamily: portfolioFonts.subHeaders
+                      }}
+                    >
+                      {project.name}
+                    </h3>
+                    <p 
+                      className="text-sm mb-4"
+                      style={{ 
+                        color: portfolioColors.bodyText,
+                        fontFamily: portfolioFonts.bodyText,
+                        lineHeight: safeSpacing.lineHeight
+                      }}
+                    >
+                      {project.description || 'An amazing project showcasing modern web development techniques.'}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {project.technologies.map((tech, techIndex) => (
+                        <span 
+                          key={techIndex}
+                          className="px-3 py-1 text-xs rounded-full font-medium"
+                          style={{ 
+                            backgroundColor: portfolioColors.skillTagBackground || portfolioColors.sectionBackground,
+                            color: portfolioColors.primaryAccent
+                          }}
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex space-x-4">
+                      <button 
+                        className="text-sm font-medium hover:underline"
+                        style={{ color: portfolioColors.linkText }}
+                      >
+                        Live Demo
+                      </button>
+                      <button 
+                        className="text-sm font-medium hover:underline"
+                        style={{ color: portfolioColors.linkText }}
+                      >
+                        GitHub
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Skills Section with Toggle */}
+        {resumeData.skills.length > 0 && (
+          <div 
+            id="portfolio-skills"
+            className="p-8"
+            style={{ backgroundColor: portfolioColors.pageBackground }}
+          >
+            <h2 
+              className="text-2xl font-bold text-center mb-8"
+              style={{ 
+                color: portfolioColors.sectionHeaderText,
+                fontFamily: portfolioFonts.sectionHeaders
+              }}
+            >
+              Skills & Expertise
+            </h2>
+            
+            {/* Skill Category Toggle */}
+            {availableCategories.length > 1 && (
+              <div className="flex justify-center mb-8">
+                <div 
+                  className="inline-flex rounded-lg p-1"
+                  style={{ backgroundColor: portfolioColors.sectionBackground }}
+                >
+                  {availableCategories.map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => setActiveSkillType(category)}
+                      className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+                        activeSkillType === category
+                          ? 'shadow-sm transform scale-105'
+                          : 'hover:scale-105'
+                      }`}
+                      style={{
+                        backgroundColor: activeSkillType === category 
+                          ? portfolioColors.primaryAccent 
+                          : 'transparent',
+                        color: activeSkillType === category 
+                          ? '#ffffff' 
+                          : portfolioColors.bodyText,
+                        fontFamily: portfolioFonts.bodyText
+                      }}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Skills Display */}
+            <div className="max-w-4xl mx-auto">
+              {currentSkills.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {currentSkills.map((skill, index) => (
+                    <div key={index} className="flex items-center space-x-4">
+                      <span 
+                        className="flex-1 text-lg font-medium"
+                        style={{ 
+                          color: portfolioColors.bodyText,
+                          fontFamily: portfolioFonts.bodyText
+                        }}
+                      >
+                        {skill.name}
+                      </span>
+                      <div className="flex-1">
+                        <div 
+                          className="h-3 rounded-full overflow-hidden"
+                          style={{ backgroundColor: portfolioColors.borderColor }}
+                        >
+                          <div 
+                            className="h-full rounded-full transition-all duration-1000 ease-out"
+                            style={{ 
+                              backgroundColor: portfolioColors.timelineAccent || portfolioColors.primaryAccent,
+                              width: skill.level === 'Expert' ? '95%' : 
+                                     skill.level === 'Advanced' ? '80%' : 
+                                     skill.level === 'Intermediate' ? '65%' : '40%'
+                            }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-xs mt-1">
+                          <span style={{ color: portfolioColors.bodyText }}>
+                            {skill.level}
+                          </span>
+                          <span style={{ color: portfolioColors.bodyText }}>
+                            {skill.level === 'Expert' ? '95%' : 
+                             skill.level === 'Advanced' ? '80%' : 
+                             skill.level === 'Intermediate' ? '65%' : '40%'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p 
+                    className="text-lg"
+                    style={{ 
+                      color: portfolioColors.bodyText,
+                      fontFamily: portfolioFonts.bodyText
+                    }}
+                  >
+                    No {activeSkillType.toLowerCase()} skills added yet.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Experience Section */}
+        {resumeData.experience.length > 0 && (
+          <div 
+            id="portfolio-experience"
+            className="p-8"
+            style={{ backgroundColor: portfolioColors.alternateBackground }}
+          >
+            <h2 
+              className="text-2xl font-bold text-center mb-8"
+              style={{ 
+                color: portfolioColors.sectionHeaderText,
+                fontFamily: portfolioFonts.sectionHeaders
+              }}
+            >
+              Experience
+            </h2>
+            <div className="max-w-4xl mx-auto space-y-6">
+              {resumeData.experience.map((exp) => (
+                <div 
+                  key={exp.id}
+                  className="p-6 rounded-lg shadow-lg border-l-4"
+                  style={{ 
+                    backgroundColor: portfolioColors.cardBackground,
+                    borderLeftColor: portfolioColors.primaryAccent,
+                    borderRadius: safeBorders.borderRadius
+                  }}
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 
+                        className="text-xl font-bold"
+                        style={{ 
+                          color: portfolioColors.subHeaderText,
+                          fontFamily: portfolioFonts.subHeaders
+                        }}
+                      >
+                        {exp.position}
+                      </h3>
+                      <p 
+                        className="text-lg italic"
+                        style={{ 
+                          color: portfolioColors.bodyText,
+                          fontFamily: portfolioFonts.bodyText
+                        }}
+                      >
+                        {exp.company}
+                      </p>
+                    </div>
+                    <span 
+                      className="text-sm font-medium px-3 py-1 rounded-full"
+                      style={{ 
+                        color: portfolioColors.primaryAccent,
+                        backgroundColor: portfolioColors.primaryAccent + '20',
+                        fontFamily: portfolioFonts.dates
+                      }}
+                    >
+                      {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
+                    </span>
+                  </div>
+                  <p 
+                    className="mb-4"
+                    style={{ 
+                      color: portfolioColors.bodyText,
+                      lineHeight: safeSpacing.lineHeight
+                    }}
+                  >
+                    {exp.description}
+                  </p>
+                  {exp.achievements.length > 0 && (
+                    <ul 
+                      className="list-disc list-inside space-y-2"
+                      style={{ 
+                        color: portfolioColors.bodyText,
+                        lineHeight: safeSpacing.lineHeight
+                      }}
+                    >
+                      {exp.achievements.map((achievement, index) => (
+                        <li key={index}>{achievement}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Education Section */}
+        {resumeData.education.length > 0 && (
+          <div 
+            id="portfolio-education"
+            className="p-8"
+            style={{ backgroundColor: portfolioColors.pageBackground }}
+          >
+            <h2 
+              className="text-2xl font-bold text-center mb-8"
+              style={{ 
+                color: portfolioColors.sectionHeaderText,
+                fontFamily: portfolioFonts.sectionHeaders
+              }}
+            >
+              Education
+            </h2>
+            <div className="max-w-4xl mx-auto space-y-6">
+              {resumeData.education.map((edu) => (
+                <div 
+                  key={edu.id}
+                  className="p-6 rounded-lg shadow-lg"
+                  style={{ 
+                    backgroundColor: portfolioColors.cardBackground,
+                    borderRadius: safeBorders.borderRadius
+                  }}
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 
+                        className="text-xl font-bold"
+                        style={{ 
+                          color: portfolioColors.subHeaderText,
+                          fontFamily: portfolioFonts.subHeaders
+                        }}
+                      >
+                        {edu.degree} in {edu.field}
+                      </h3>
+                      <p 
+                        className="text-lg italic mb-2"
+                        style={{ 
+                          color: portfolioColors.bodyText,
+                          fontFamily: portfolioFonts.bodyText
+                        }}
+                      >
+                        {edu.institution}
+                      </p>
+                      {edu.gpa && (
+                        <p style={{ 
+                          color: portfolioColors.bodyText,
+                          lineHeight: safeSpacing.lineHeight
+                        }}>
+                          GPA: {edu.gpa}
+                        </p>
+                      )}
+                      {edu.honors && (
+                        <p style={{ 
+                          color: portfolioColors.bodyText,
+                          lineHeight: safeSpacing.lineHeight
+                        }}>
+                          {edu.honors}
+                        </p>
+                      )}
+                    </div>
+                    <span 
+                      className="text-sm font-medium px-3 py-1 rounded-full"
+                      style={{ 
+                        color: portfolioColors.primaryAccent,
+                        backgroundColor: portfolioColors.primaryAccent + '20',
+                        fontFamily: portfolioFonts.dates
+                      }}
+                    >
+                      {edu.startDate} - {edu.endDate}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Contact Section */}
+        <div 
+          id="portfolio-contact"
+          className="p-8 text-center"
+          style={{ 
+            background: `linear-gradient(135deg, ${portfolioColors.primaryAccent}10, ${portfolioColors.secondaryAccent}10)`
+          }}
+        >
+          <h2 
+            className="text-2xl font-bold mb-4"
+            style={{ 
+              color: portfolioColors.sectionHeaderText,
+              fontFamily: portfolioFonts.sectionHeaders
+            }}
+          >
+            Let's Work Together
+          </h2>
+          <p 
+            className="text-lg mb-6 max-w-2xl mx-auto"
+            style={{ 
+              color: portfolioColors.bodyText,
+              fontFamily: portfolioFonts.bodyText,
+              lineHeight: safeSpacing.lineHeight
+            }}
+          >
+            Ready to bring your ideas to life? I'm always excited to work on new projects and collaborate with amazing people.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div 
+              className="p-4 rounded-lg"
+              style={{ backgroundColor: portfolioColors.cardBackground }}
+            >
+              <div className="text-2xl mb-2">📧</div>
+              <h3 
+                className="font-semibold mb-1"
+                style={{ color: portfolioColors.subHeaderText }}
+              >
+                Email
+              </h3>
+              <p style={{ color: portfolioColors.bodyText }}>{resumeData.personalInfo.email}</p>
+            </div>
+            
+            <div 
+              className="p-4 rounded-lg"
+              style={{ backgroundColor: portfolioColors.cardBackground }}
+            >
+              <div className="text-2xl mb-2">📱</div>
+              <h3 
+                className="font-semibold mb-1"
+                style={{ color: portfolioColors.subHeaderText }}
+              >
+                Phone
+              </h3>
+              <p style={{ color: portfolioColors.bodyText }}>{resumeData.personalInfo.phone}</p>
+            </div>
+            
+            <div 
+              className="p-4 rounded-lg"
+              style={{ backgroundColor: portfolioColors.cardBackground }}
+            >
+              <div className="text-2xl mb-2">📍</div>
+              <h3 
+                className="font-semibold mb-1"
+                style={{ color: portfolioColors.subHeaderText }}
+              >
+                Location
+              </h3>
+              <p style={{ color: portfolioColors.bodyText }}>{resumeData.personalInfo.location}</p>
+            </div>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button 
+              className="px-8 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"
+              style={{ 
+                backgroundColor: portfolioColors.primaryAccent,
+                color: '#ffffff'
+              }}
+            >
+              Send Message
+            </button>
+            <button 
+              className="px-8 py-3 border-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105"
+              style={{ 
+                borderColor: portfolioColors.primaryAccent,
+                color: portfolioColors.primaryAccent
+              }}
+            >
+              Download Resume
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -973,16 +1590,10 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
                 <Eye className="w-5 h-5 mr-2" />
                 Live Preview
               </h3>
-              <button
-                onClick={() => setPreviewMode(!previewMode)}
-                className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors duration-200"
-              >
-                {previewMode ? 'Compact' : 'Full'}
-              </button>
             </div>
             
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-              {activeTab === 'resume' ? (
+            {activeTab === 'resume' ? (
+              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                 <div 
                   className="p-6 space-y-4"
                   style={{ 
@@ -1059,58 +1670,10 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div style={{ fontFamily: currentSettings.fonts.bodyText }}>
-                  <div 
-                    className="p-6 text-center text-white"
-                    style={{ 
-                      background: data?.portfolio?.colors?.heroBackground || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      opacity: data?.portfolio?.colors?.heroGradient?.opacity || 1
-                    }}
-                  >
-                    <h1 
-                      className="text-2xl font-bold mb-2"
-                      style={{ 
-                        color: currentSettings.colors.mainHeaderText,
-                        fontFamily: currentSettings.fonts.mainHeader
-                      }}
-                    >
-                      {resumeData.personalInfo.fullName || 'John Doe'}
-                    </h1>
-                    <p className="opacity-90">Full Stack Developer</p>
-                  </div>
-                  
-                  <div 
-                    className="p-6"
-                    style={{ backgroundColor: currentSettings.colors.pageBackground }}
-                  >
-                    <div 
-                      className="p-4 rounded-lg mb-4"
-                      style={{ 
-                        backgroundColor: currentSettings.colors.cardBackground,
-                        borderRadius: safeBorders.borderRadius
-                      }}
-                    >
-                      <h2 
-                        className="text-lg font-semibold mb-2"
-                        style={{ 
-                          color: currentSettings.colors.sectionHeaderText,
-                          fontFamily: currentSettings.fonts.sectionHeaders
-                        }}
-                      >
-                        About Me
-                      </h2>
-                      <p style={{ 
-                        color: currentSettings.colors.bodyText,
-                        lineHeight: safeSpacing.lineHeight
-                      }}>
-                        Passionate developer with expertise in modern web technologies.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              renderPortfolioPreview()
+            )}
           </div>
         </div>
 
