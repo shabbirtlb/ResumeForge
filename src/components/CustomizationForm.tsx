@@ -480,7 +480,7 @@ const updateGradientSettings = (gradientSettings: GradientSettings) => {
             }}
           />
         </div>
-      </div
+      </div>
     </div>
     );
   };
