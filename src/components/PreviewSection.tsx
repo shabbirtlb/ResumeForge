@@ -1877,7 +1877,7 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
             disabled={isGenerating}
             className="flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Download className="w-5 h-5" />
+            <Download className="w-7 h-5" />
             <span>{isGenerating ? 'Generating...' : 'Download PDF'}</span>
           </button>
 
@@ -1885,7 +1885,7 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
             onClick={handleDownloadPortfolio}
             className="flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
-            <Globe className="w-5 h-5" />
+            <Globe className="w-7 h-5" />
             <span>Download Portfolio</span>
           </button>
 
@@ -1893,7 +1893,7 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
             onClick={handleOpenPortfolioInNewTab}
             className="flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
-            <ExternalLink className="w-5 h-5" />
+            <ExternalLink className="w-7 h-5" />
             <span>Open in New Tab</span>
           </button>
 
@@ -1901,7 +1901,7 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
             onClick={handleExportJSON}
             className="flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
-            <Save className="w-5 h-5" />
+            <Save className="w-7 h-5" />
             <span>Export Data</span>
           </button>
         </div>
