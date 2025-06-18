@@ -1904,14 +1904,6 @@ export const PreviewSection: React.FC<PreviewSectionProps> = ({
             <Save className="w-5 h-5" />
             <span>Export Data</span>
           </button>
-
-          <button
-            onClick={handleShare}
-            className="flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl hover:from-orange-700 hover:to-orange-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-          >
-            <Share2 className="w-5 h-5" />
-            <span>Share</span>
-          </button>
         </div>
 
         {/* Preview Content */}
